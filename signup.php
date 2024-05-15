@@ -1,6 +1,6 @@
 <?php
 
-$conn = mysqli_connect("localhost", "root", "Eduard2405!", "proiect_mds");
+$conn = mysqli_connect("localhost", "root", "", "proiect_mds");
 
 if($conn === false){
     die("Eroare la conectare. " . mysqli_connect_error());
@@ -30,7 +30,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
              echo "<script>alert('Exista deja un utilizator cu acest email.');</script>";
         } else {
             // Verifică dacă există deja un utilizator cu același nume de utilizator
-            $check_user_query = "SELECT * FROM user WHERE name='$username'";
+            $check_user_query = "SELECT * FROM user WHERE username='$username'";
             $check_user_result = mysqli_query($conn, $check_user_query);
             
             if(mysqli_num_rows($check_user_result) > 0){
@@ -40,7 +40,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 
                 // Inserează utilizatorul în baza de date
-                $insert_user_query = "INSERT INTO user (name, password , email) VALUES ('$username', '$hashed_password' , '$email')";
+                $insert_user_query = "INSERT INTO user (username, password , email) VALUES ('$username', '$hashed_password' , '$email')";
                 if(mysqli_query($conn, $insert_user_query)){
                     echo "<script>alert('Cont creat cu succes'); window.location='loginh.php';</script>";
                 } else{
@@ -62,7 +62,65 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <title>Sign Up</title>
 </head>
 <body>
+<?php
+include 'header.php';
+?>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffece0;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
+        form {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <div>
 <h2>Formular de înregistrare</h2>
 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
     <div>
@@ -85,6 +143,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <input type="submit" value="Înregistrare">
     </div>
 </form>
-
+    </div>
 </body>
 </html>
