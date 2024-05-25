@@ -163,18 +163,19 @@
             // Închide conexiunea la baza de date
             
         }
-        $query = "SELECT date,type FROM event WHERE calendarId = '$calendar_id'"; 
+    }
+    $query = "SELECT date,type FROM event WHERE calendarId = '$calendar_id'"; 
         $result = mysqli_query($conn, $query);
         $events = array();
         while($row = mysqli_fetch_assoc($result)) {
         $events[] = $row;
 
     }
+    $eventsJson = json_encode([]);
 
     // Convertim array-ul PHP în format JSON
     $eventsJson = json_encode($events);
     mysqli_close($conn);
-    }
     ?>
 <script>
 let eventsphp = <?php echo $eventsJson; ?>;
