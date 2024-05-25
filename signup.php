@@ -60,10 +60,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+<<<<<<< HEAD
     <?php
     include 'header.php';
     ?>
     <style>
+=======
+<?php
+include 'header.php';
+?>
+<style>
+>>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
         body {
             font-family: Arial, sans-serif;
             background-color: #ffece0;
@@ -86,7 +93,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         h2 {
             text-align: center;
             margin-bottom: 20px;
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
         }
 
         label {
@@ -119,6 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
     <div>
+<<<<<<< HEAD
         <h2>Formular de înregistrare</h2>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div>
@@ -141,6 +153,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="submit" value="Înregistrare">
             </div>
         </form>
+=======
+<h2>Formular de înregistrare</h2>
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+    <div>
+        <label>Nume Utilizator:</label>
+        <input type="text" name="username" required>
+    </div>    
+    <div>
+        <label>Parolă:</label>
+        <input type="password" name="password" required>
+    </div>
+	<div>
+        <label>Rescrie parola:</label>
+        <input type="password" name="password-r" required>
+    </div>
+	<div>
+        <label>Email:</label>
+        <input type="text" name="email" required>
+    </div>
+    <div>
+        <input type="submit" value="Înregistrare">
+    </div>
+</form>
+>>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
     </div>
 </body>
 
