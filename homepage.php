@@ -1,33 +1,88 @@
 <?php
 session_start();
-// Conectarea la baza de date
-$conn = mysqli_connect("localhost", "root", "Eduard2405!", "proiect_mds");
-
-if($conn === false){
-    die("Eroare la conectare. " . mysqli_connect_error());
-}
+include 'db.php';
 
 $user_id = $_SESSION['id'];
-$user_name = $_SESSION['name'];
+$user_name = $_SESSION['username'];
 
-$calendar_query = "SELECT u.name AS user_name, c.name AS calendar_name FROM userincalendar uc JOIN calendar c ON c.id = uc.calendarId JOIN user u ON u.id = uc.userId WHERE uc.userId = $user_id";
+
+$calendar_query = "SELECT u.username AS user_name, c.name AS calendar_name, uc.calendarId AS calendar_id FROM userincalendar uc JOIN calendar c ON c.id = uc.calendarId JOIN user u ON u.id = uc.userId WHERE uc.userId = $user_id";
 $calendar_result = mysqli_query($conn, $calendar_query);
-
+include 'header.php';
+echo '<a href="creare_calendar.php"><button id="createButton">+</button></a>';
+echo '<div id="tableContainer">';
 // Verifică dacă s-au găsit calendare
-if(mysqli_num_rows($calendar_result) > 0){
+if (mysqli_num_rows($calendar_result) > 0) {
     // Există calendare la care utilizatorul este implicat, le afișăm
-    echo "<h2>Calendarele la care ești implicat:</h2>";
-    echo "<ul>";
-    while($row = mysqli_fetch_assoc($calendar_result)){
-        // Afișează numele utilizatorului și numele calendarului într-un element <p>
-        echo "<li><p>".$row['user_name']." - ".$row['calendar_name']."</p></li>";
+    while ($row = mysqli_fetch_assoc($calendar_result)) {
+        // Afișează numele utilizatorului și numele calendarului într-un element <div>
+        echo "<a href='calendar.php?calendar_id=$row[calendar_id]'><div class='calendar-button'>";
+        echo "<h3>" . $row['user_name'] . " - " . $row['calendar_name'] . "</h3>";
+        echo "</div></a>";
     }
-    echo "</ul>";
 } else {
     // Nu există calendare la care utilizatorul este implicat
-    echo "<p>Nu ești implicat în niciun calendar.</p>";
+    echo "<p id='noCalendars'>Nu ești implicat în niciun calendar.</p>";
 }
-
+echo '</div>';
 // Închide conexiunea la baza de date
 mysqli_close($conn);
 ?>
+<script>
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            // Utilizatorul a navigat înapoi
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "logout.php", false);  // Sincron - poate afecta performanța
+            xhr.send();
+        }
+    });
+</script>
+<style>
+    #tableContainer {
+        position: absolute;
+        top: 30vh;
+        display: grid;
+        width: 80vw;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #spacing {
+        top: 30vh;
+    }
+
+    .calendar-button {
+        background-color: #ffd2c6;
+        color: white;
+        width: 800px;
+        height: 80px;
+        text-align: center;
+        justify-content: center;
+        margin-top: 2vh;
+        border-radius: 25px;
+    }
+
+    .calendar-button:hover {
+        background-color: #ff9b8f;
+    }
+
+    #noCalendars {
+        text-align: center;
+        font-style: italic;
+        color: #999;
+        top: 20vh;
+        position: relative;
+    }
+
+    /* Add your CSS styles here */
+    #createButton {
+        font-size: 5vw;
+        top: 15vh;
+        position: absolute;
+        left: 3vw;
+        background-color: #ffd2c6;
+        color: white;
+        width: 6vw;
+    }
+</style>
