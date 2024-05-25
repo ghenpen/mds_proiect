@@ -28,10 +28,6 @@
             from {
                 transform: scale(0);
             }
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
             to {
                 transform: scale(1);
             }
@@ -42,12 +38,8 @@
             text-align: center;
             margin-top: 20px;
         }
-<<<<<<< HEAD
 
         .cont {
-=======
-        .cont{
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
             display: flex;
             justify-content: center;
             align-items: center;
@@ -105,7 +97,6 @@
         }
     </style>
 </head>
-<<<<<<< HEAD
 
 <body>
     <?php include 'header.php'; ?>
@@ -128,28 +119,6 @@
             <a href="../mds_proiect/signup.php" class="signup-link">sign up</a>
         </div>
     </div>
-=======
-<body>
-    <?php include 'header.php'; ?>
-    <div class="cont">
-    <img src="logo.png" alt="Logo"  style="display: inline-block; height: 50%;position: relative; right:100px; border-radius: 50px;">
-    <div class="container">
-        <h2>Formular de Login</h2>
-        <form action="login.php" method="post">
-            <div class="form-group">
-                <label for="username">Nume Utilizator:</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>    
-            <div class="form-group">
-                <label for="password">Parolă:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-        <a href="../proiect/signup.php" class="signup-link">sign up</a>
-    </div>
-    </div>
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
     <!-- Adaugă Bootstrap JS pentru funcționalități suplimentare (opțional) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

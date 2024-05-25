@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Calendar</title>
-<<<<<<< HEAD
     <style>
-=======
-<style>
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
@@ -23,10 +15,6 @@
             align-items: center;
             height: 100vh;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
         .form-container {
             width: 300px;
             margin: 0 auto;
@@ -35,10 +23,6 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
         .form-container input {
             width: calc(100% - 20px);
             padding: 8px;

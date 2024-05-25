@@ -1,9 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,10 +54,6 @@
             from {
                 transform: translateX(-100%);
             }
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
             to {
                 transform: translateX(0);
             }
@@ -71,20 +63,12 @@
             from {
                 opacity: 0;
             }
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
             to {
                 opacity: 1;
             }
         }
     </style>
 </head>
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
 <body>
     <div class="presentation text-center">
         <img src="group.png" alt="GroupCalendar Presentation Image">
@@ -98,18 +82,10 @@
     <!-- Redirecționează către pagina de login după terminarea animației -->
     <script>
         // După 2.5 secunde (timpul total al animației), redirecționează către pagina de login
-<<<<<<< HEAD
         setTimeout(function () {
-=======
-        setTimeout(function() {
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
             window.location.href = "loginh.php";
         }, 6500);
     </script>
 </body>
-<<<<<<< HEAD
 
 </html>
-=======
-</html>
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f

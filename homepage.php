@@ -29,7 +29,6 @@ echo '</div>';
 mysqli_close($conn);
 ?>
 <script>
-<<<<<<< HEAD
     window.addEventListener('pageshow', function (event) {
         if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
             // Utilizatorul a navigat înapoi
@@ -87,57 +86,3 @@ mysqli_close($conn);
         width: 6vw;
     }
 </style>
-=======
-window.addEventListener('pageshow', function(event) {
-    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        // Utilizatorul a navigat înapoi
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "logout.php", false);  // Sincron - poate afecta performanța
-        xhr.send();
-    }
-});
-</script>
-<style>
-    #tableContainer{
-        position: absolute;
-        top:30vh;
-        display:grid;
-        width:80vw;
-        align-items:center;
-        justify-content:center;
-    }
-    #spacing{
-        top:30vh;
-    }
-    .calendar-button{
-        background-color:#ffd2c6;
-        color:white;
-        width:800px;
-        height:80px;
-        text-align:center;
-        justify-content:center;
-        margin-top:2vh;
-        border-radius:25px;
-    }
-    .calendar-button:hover{
-        background-color:#ff9b8f;
-    }
-#noCalendars {
-        text-align: center;
-        font-style: italic;
-        color: #999;
-        top :20vh;
-        position: relative;
-    }
-    /* Add your CSS styles here */
-    #createButton{
-        font-size:5vw;
-        top:15vh;
-        position:absolute;
-        left:3vw;
-        background-color:#ffd2c6;
-        color:white;
-        width:6vw;
-    }
-</style>
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
