@@ -47,6 +47,22 @@
 <body>
 
     <?php
+
+    $_SESSION['show_back_button'] = false;
+    function generateRandomCode($length = 6) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomCode = '';
+        
+        // Generăm codul aleatoriu
+        for ($i = 0; $i < $length; $i++) {
+            $randomCode .= $characters[rand(0, $charactersLength - 1)];
+        }
+        
+        return $randomCode;
+    }
+    
+    $randomCode = generateRandomCode(6);
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
@@ -56,8 +72,7 @@
         $name = mysqli_real_escape_string($conn, $_POST['name']);
         $adminId = $_SESSION['id'];
 
-        $insert_query = "INSERT INTO calendar (name, adminId) VALUES ('$name', '$adminId');";
-
+        $insert_query = "INSERT INTO calendar (name, adminId, code) VALUES ('$name', '$adminId', '$randomCode');";
 
         if (mysqli_query($conn, $insert_query)) {
             $calendarId = mysqli_insert_id($conn);

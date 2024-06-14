@@ -35,12 +35,28 @@
             color: #fff;
             text-decoration: none;
         }
+
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #fff;
+            color: #ffd2c6;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #ffd2c6;
+            color: #fff;
+        }
     </style>
 </head>
 
 <body>
     <?php
-    //session_start(); // Asigură-te că sesiunea este pornită
 
     include 'db.php';
 
@@ -48,12 +64,14 @@
     $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     ?>
     <div class="header">
+        <?php if (isset($_SESSION['show_back_button']) && $_SESSION['show_back_button'] === true): ?>
+            <button class="back-button" onclick="window.location.href='homepage.php'">Înapoi</button>
+        <?php endif; ?>
         <h1 style="display: inline-block; position: relative; left: 0px; top:10px;">GroupCalendar</h1>
         <div class="login-register" style="display: inline-block;left:100px; position:relative;">
             <?php
             if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-                // Dacă utilizatorul este autentificat, afișăm un mesaj de bun venit și butoanele Home, Friends și Logout
-                echo "Bine ai venit, " . $user_name . "!";
+                echo "Bine ai venit, " . htmlspecialchars($user_name) . "!";
                 echo '<a href="homepage.php" class="btn btn-outline-light" style="margin-left: 10px;">Home</a>';
                 echo '<a href="friends.php" class="btn btn-outline-light" style="margin-left: 10px;">Friends</a>';
                 echo '<a href="logout.php" class="btn btn-outline-light" style="margin-left: 10px;">Logout</a>';
@@ -67,5 +85,4 @@
     <!-- Adaugă Bootstrap JS pentru funcționalități suplimentare (opțional) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-
 </html>

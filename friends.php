@@ -9,6 +9,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 include 'db.php'; // Include database connection
 
 $username = $_SESSION['username'];
+$_SESSION['show_back_button'] = false;
 
 // Get user ID from username
 $result = mysqli_query($conn, "SELECT id FROM user WHERE username='$username'");
