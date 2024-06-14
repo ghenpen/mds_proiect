@@ -243,6 +243,8 @@
             }
         });
 
+        let availability = {};
+
         function deleteEvent(eventId) {
             let eventIndex =
                 events.findIndex((event) =>
@@ -428,7 +430,13 @@
 
             eventsOnDate.forEach(event => {
                 let listItem = document.createElement("li");
-                listItem.textContent = `${event.time} - ${event.description}`;
+                listItem.innerHTML = `${event.time} - ${event.description} <br>
+                <label for="availability-${event.id}"></label>
+                <select id="availability-${event.id}" onchange="updateAvailability(${event.id})">
+                    <option value="available">Available</option>
+                    <option value="not sure">Not Sure</option>
+                    <option value="unavailable">Unavailable</option>
+                </select>`;
                 eventList.appendChild(listItem);
             });
 
@@ -438,6 +446,13 @@
 
         function closePopup() {
             document.getElementById("eventPopup").style.display = "none";
+        }
+
+        function updateAvailability(eventId) {
+            let selectElement = document.getElementById(`availability-${eventId}`);
+            let availabilityValue = selectElement.value;
+            availability[eventId] = availabilityValue;
+            console.log(`Availability for event ${eventId}: ${availabilityValue}`);
         }
 
         showCalendar(currentMonth, currentYear);
