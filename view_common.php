@@ -2,41 +2,51 @@
 session_start();
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: loginh.php");
     exit();
 }
 
 include 'db.php'; // Include database connection
 
 $username = $_SESSION['username'];
-$friend_username = isset($_GET['friend']) ? mysqli_real_escape_string($conn, $_GET['friend']) : '';
+$friend_username = isset($_GET['friend']) ? trim($_GET['friend']) : '';
 
-// Get user ID from username
-$result = mysqli_query($conn, "SELECT id FROM user WHERE username='$username'");
-if ($result && mysqli_num_rows($result) > 0) {
-    $user_row = mysqli_fetch_assoc($result);
+// Get user ID from username using prepared statements
+$stmt = $conn->prepare("SELECT id FROM user WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $user_row = $result->fetch_assoc();
     $user_id = $user_row['id'];
 } else {
-    die("Error retrieving user ID for username: $username");
+    die("Error retrieving user ID for username: " . htmlspecialchars($username));
 }
 
-// Get friend ID from friend username
-$result = mysqli_query($conn, "SELECT id FROM user WHERE username='$friend_username'");
-if ($result && mysqli_num_rows($result) > 0) {
-    $friend_row = mysqli_fetch_assoc($result);
+// Get friend ID from friend username using prepared statements
+$stmt = $conn->prepare("SELECT id FROM user WHERE username = ?");
+$stmt->bind_param("s", $friend_username);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $friend_row = $result->fetch_assoc();
     $friend_id = $friend_row['id'];
 } else {
-    die("Error retrieving user ID for friend username: $friend_username");
+    die("Error retrieving user ID for friend username: " . htmlspecialchars($friend_username));
 }
 
-// Get common calendars
-$common_calendars = mysqli_query($conn, "SELECT c.id, c.name FROM calendar c
+// Get common calendars using prepared statements
+$stmt = $conn->prepare("
+    SELECT c.id, c.name FROM calendar c
     JOIN userincalendar uc1 ON c.id = uc1.calendarId
     JOIN userincalendar uc2 ON c.id = uc2.calendarId
-    WHERE uc1.userId = '$user_id' AND uc2.userId = '$friend_id'");
-
+    WHERE uc1.userId = ? AND uc2.userId = ?
+");
+$stmt->bind_param("ii", $user_id, $friend_id);
+$stmt->execute();
+$common_calendars = $stmt->get_result();
 if (!$common_calendars) {
-    die("Error retrieving common calendars: " . mysqli_error($conn));
+    die("Error retrieving common calendars: " . htmlspecialchars($conn->error));
 }
 ?>
 
@@ -95,11 +105,11 @@ if (!$common_calendars) {
     <div class="container">
         <h1>Common Calendars with <?php echo htmlspecialchars($friend_username); ?></h1>
 
-        <?php if (mysqli_num_rows($common_calendars) > 0): ?>
+        <?php if ($common_calendars->num_rows > 0): ?>
             <ul class="list-group">
-                <?php while ($row = mysqli_fetch_assoc($common_calendars)): ?>
+                <?php while ($row = $common_calendars->fetch_assoc()): ?>
                     <li class="list-group-item">
-                        <a href="calendar.php?calendar_id=<?php echo $row['id']; ?>">
+                        <a href="calendar.php?calendar_id=<?php echo htmlspecialchars($row['id']); ?>">
                             <?php echo htmlspecialchars($row['name']); ?>
                         </a>
                     </li>
@@ -113,7 +123,7 @@ if (!$common_calendars) {
     <!-- Adaugă jQuery înainte de Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <!-- Adaugă Bootstrap JS pentru funcționalități suplimentare (opțional) -->
-    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

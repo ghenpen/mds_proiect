@@ -1,40 +1,46 @@
 <?php
-session_start();
+session_start();  // Începe sesiunea pentru utilizarea sesiunilor PHP
 
-// Redirect user if already logged in
+// Redirecționează utilizatorul către pagina de start (homepage.php) dacă acesta este deja autentificat
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     header("location: homepage.php");
     exit;
 }
 
+// Verifică dacă formularul de login a fost trimis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    include 'db.php';
+    include 'db.php';  // Include fișierul de conectare la baza de date
 
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    $username = trim($_POST['username']);  // Preia și curăță numele de utilizator introdus
+    $password = trim($_POST['password']);  // Preia și curăță parola introdusă
 
-    // Prepare SQL statement to prevent SQL Injection
+    // Preparează declarația SQL pentru a preveni injecția SQL
     $stmt = $conn->prepare("SELECT id, username, password FROM user WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+    $stmt->bind_param("s", $username);  // Leagă parametrul pentru a evita SQL injection
+    $stmt->execute();  // Execută interogarea
+    $result = $stmt->get_result();  // Obține rezultatul interogării
+    $row = $result->fetch_assoc();  // Extrage rândul rezultat
 
+    // Verifică dacă există un singur rând (utilizator) returnat
     if ($result->num_rows == 1) {
+        // Verifică dacă parola introdusă se potrivește cu parola stocată (folosind password_verify)
         if (password_verify($password, $row['password'])) {
+            // Autentificare reușită, setează variabilele de sesiune
             $_SESSION['loggedin'] = true;
             $_SESSION['id'] = $row['id'];
             $_SESSION['username'] = $username;
+            // Redirecționează către pagina de start (homepage.php)
             header("location: homepage.php");
             exit;
         } else {
-            echo "<script>alert('Parolă incorectă.');</script>";
+            echo "<script>alert('Parolă incorectă.');</script>";  // Afișează o alertă dacă parola introdusă este greșită
         }
     } else {
-        echo "<script>alert('Nu există niciun cont cu acest nume de utilizator.');</script>";
+        echo "<script>alert('Nu există niciun cont cu acest nume de utilizator.');</script>";  // Afișează o alertă dacă numele de utilizator nu există în baza de date
     }
-    $stmt->close();
-    mysqli_close($conn);
+
+    $stmt->close();  // Închide declarația preparată pentru a elibera resursele
+    mysqli_close($conn);  // Închide conexiunea cu baza de date
 }
 ?>
 
@@ -45,9 +51,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formular de Login</title>
-    <!-- Adaugă Bootstrap CSS -->
+    <!-- Adaugă CSS Bootstrap -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Stiluri CSS pentru pagina de login */
         body {
             font-family: Arial, sans-serif;
             background-color: #ffece0;
@@ -68,6 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             from {
                 transform: scale(0);
             }
+
             to {
                 transform: scale(1);
             }
@@ -139,9 +147,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <?php include 'header.php'; ?>
+    <?php include 'header.php'; ?> <!-- Include antetul (header-ul) paginii -->
     <div class="cont">
-        <img src="logo.png" alt="Logo" style="display: inline-block; height: 50%;position: relative; right:100px; border-radius: 50px;">
+        <img src="logo.png" alt="Logo" style="display: inline-block; height: 50%; position: relative; right:100px; border-radius: 50px;">
         <div class="container">
             <h2>Formular de Login</h2>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
@@ -155,10 +163,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
-            <a href="../mds_proiect/signup.php" class="signup-link">sign up</a>
+            <a href="../mds_proiect/signup.php" class="signup-link">Înregistrare</a> <!-- Link către pagina de înregistrare -->
         </div>
     </div>
-    <!-- Adaugă Bootstrap JS pentru funcționalități suplimentare (opțional) -->
+    <!-- Adaugă JS Bootstrap pentru funcționalități suplimentare (opțional) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 

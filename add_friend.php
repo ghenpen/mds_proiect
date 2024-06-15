@@ -1,59 +1,80 @@
 <?php
-session_start();
+session_start(); // Începe sesiunea pentru a gestiona starea de autentificare a utilizatorilor
 
+// Verifică dacă utilizatorul nu este autentificat și îl redirecționează către pagina de login
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: loginh.php");
     exit();
 }
 
+// Verifică dacă s-a trimis o cerere POST și dacă există o sesiune pentru numele de utilizator
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['username'])) {
-    include 'db.php';
+    include 'db.php'; // Include fișierul de conectare la baza de date
 
-    $friend_username = mysqli_real_escape_string($conn, $_POST['friend_username']);
+    // Curăță și preia numele de utilizator al prietenului din formular
+    $friend_username = trim($_POST['friend_username']);
     $username = $_SESSION['username'];
 
+    // Verifică dacă utilizatorul încearcă să trimită o cerere de prietenie către propriul său cont
     if ($friend_username == $username) {
-        $error_message = "You cannot send a friend request to yourself.";
+        $error_message = "Nu poți trimite o cerere de prietenie către tine însuți.";
     } else {
-        $query = "SELECT * FROM user WHERE username='$friend_username'";
-        $result = mysqli_query($conn, $query);
-        if (mysqli_num_rows($result) > 0) {
-            // Get user IDs
-            $friend_row = mysqli_fetch_assoc($result);
+        // Interogare pentru a verifica dacă există un utilizator cu numele de utilizator introdus
+        $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
+        $stmt->bind_param("s", $friend_username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            // Obține ID-urile utilizatorilor implicati
+            $friend_row = $result->fetch_assoc();
             $friend_id = $friend_row['id'];
 
-            $user_result = mysqli_query($conn, "SELECT id FROM user WHERE username='$username'");
-            $user_row = mysqli_fetch_assoc($user_result);
+            $stmt = $conn->prepare("SELECT id FROM user WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $user_result = $stmt->get_result();
+            $user_row = $user_result->fetch_assoc();
             $user_id = $user_row['id'];
 
-            // Check if the friendship already exists
-            $check_friendship = "SELECT * FROM friendship WHERE (userId1='$user_id' AND userId2='$friend_id') OR (userId1='$friend_id' AND userId2='$user_id')";
-            $friendship_result = mysqli_query($conn, $check_friendship);
-            if (mysqli_num_rows($friendship_result) == 0) {
-                // Check if the request already exists
-                $check_request = "SELECT * FROM friend_requests WHERE sender='$username' AND receiver='$friend_username'";
-                $request_result = mysqli_query($conn, $check_request);
-                if (mysqli_num_rows($request_result) == 0) {
-                    // Send friend request
-                    $query = "INSERT INTO friend_requests (sender, receiver) VALUES ('$username', '$friend_username')";
-                    if (mysqli_query($conn, $query)) {
-                        $message = "Friend request sent!";
+            // Verifică dacă există deja o prietenie între cei doi utilizatori
+            $stmt = $conn->prepare("SELECT * FROM friendship WHERE (userId1 = ? AND userId2 = ?) OR (userId1 = ? AND userId2 = ?)");
+            $stmt->bind_param("iiii", $user_id, $friend_id, $friend_id, $user_id);
+            $stmt->execute();
+            $friendship_result = $stmt->get_result();
+
+            if ($friendship_result->num_rows == 0) {
+                // Verifică dacă cererea de prietenie a mai fost deja trimisă
+                $stmt = $conn->prepare("SELECT * FROM friend_requests WHERE sender = ? AND receiver = ?");
+                $stmt->bind_param("ss", $username, $friend_username);
+                $stmt->execute();
+                $request_result = $stmt->get_result();
+
+                if ($request_result->num_rows == 0) {
+                    // Trimite cererea de prietenie
+                    $stmt = $conn->prepare("INSERT INTO friend_requests (sender, receiver) VALUES (?, ?)");
+                    $stmt->bind_param("ss", $username, $friend_username);
+                    if ($stmt->execute()) {
+                        $message = "Cerere de prietenie trimisă!";
                         echo '<script>alert("' . $message . '"); window.location.href = "friends.php";</script>';
-                        exit(); // Ensure script stops here after redirection
+                        exit(); // Asigură oprirea scriptului după redirecționare
                     } else {
-                        $error_message = "Error: could not send friend request.";
+                        $error_message = "Eroare: nu s-a putut trimite cererea de prietenie.";
                     }
                 } else {
-                    $error_message = "Friend request already sent.";
+                    $error_message = "Cererea de prietenie a fost deja trimisă.";
                 }
             } else {
-                $error_message = "You are already friends.";
+                $error_message = "Voi sunteți deja prieteni.";
             }
         } else {
-            $error_message = "User not found.";
+            $error_message = "Utilizatorul nu a fost găsit.";
         }
+
+        $stmt->close(); // Închide declarația pregătită
     }
-    mysqli_close($conn);
+
+    mysqli_close($conn); // Închide conexiunea cu baza de date
 }
 ?>
 
@@ -63,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Friend</title>
+    <title>Adaugă Prieten</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -117,21 +138,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['username'])) {
 </head>
 
 <body>
-
     <?php
-    include 'header.php';
+    include 'header.php'; // Include bara de navigare sau header-ul
     ?>
-
     <div class="form-container">
         <?php
         if (isset($error_message)) {
-            echo '<div class="error-message">' . $error_message . '</div>';
+            echo '<div class="error-message">' . htmlspecialchars($error_message) . '</div>';
         }
         ?>
         <form method="post">
-            <label for="friend_username">Username Friend:</label>
+            <label for="friend_username">Nume Utilizator Prieten:</label>
             <input type="text" id="friend_username" name="friend_username" required>
-            <button type="submit">Add Friend</button>
+            <button type="submit">Adaugă Prieten</button>
         </form>
     </div>
 </body>

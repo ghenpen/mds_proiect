@@ -1,31 +1,44 @@
 <?php
-session_start();
+session_start(); // Începe sesiunea pentru a gestiona starea de autentificare a utilizatorilor
 
+// Verifică dacă utilizatorul nu este autentificat și îl redirecționează către pagina de login
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: loginh.php");
     exit();
 }
 
-include 'db.php'; // Include database connection
+include 'db.php'; // Include conexiunea la baza de date
 
-$username = $_SESSION['username'];
-$_SESSION['show_back_button'] = false;
+$username = $_SESSION['username']; // Preia numele utilizatorului din sesiune
+$_SESSION['show_back_button'] = false; // Setează variabila de sesiune pentru afișarea butonului de navigare înapoi (nu este utilizată în acest cod)
 
-// Get user ID from username
-$result = mysqli_query($conn, "SELECT id FROM user WHERE username='$username'");
-if ($result && mysqli_num_rows($result) > 0) {
-    $user_row = mysqli_fetch_assoc($result);
-    $user_id = $user_row['id'];
+// Obține ID-ul utilizatorului bazat pe numele său de utilizator utilizând declarații pregătite
+$stmt = $conn->prepare("SELECT id FROM user WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Verifică dacă s-a obținut un rezultat și dacă există cel puțin un rând în rezultat
+if ($result && $result->num_rows > 0) {
+    $user_row = $result->fetch_assoc();
+    $user_id = $user_row['id']; // Preia ID-ul utilizatorului
 } else {
-    die("Error retrieving user ID for username: $username");
+    die("Error retrieving user ID for username: " . htmlspecialchars($username)); // În caz de eroare, afișează un mesaj și oprește scriptul
 }
 
-// Get friends list
-$friends = mysqli_query($conn, "SELECT u.username AS friend_username FROM friendship f
+// Obține lista de prieteni utilizând declarații pregătite
+$stmt = $conn->prepare("
+    SELECT u.username AS friend_username FROM friendship f
     JOIN user u ON (f.userId1 = u.id OR f.userId2 = u.id)
-    WHERE (f.userId1 = '$user_id' OR f.userId2 = '$user_id') AND u.username != '$username'");
+    WHERE (f.userId1 = ? OR f.userId2 = ?) AND u.username != ?
+");
+$stmt->bind_param("iis", $user_id, $user_id, $username);
+$stmt->execute();
+$friends = $stmt->get_result();
+
+// Verifică dacă s-a obținut lista de prieteni cu succes
 if (!$friends) {
-    die("Error retrieving friends: " . mysqli_error($conn));
+    die("Error retrieving friends: " . htmlspecialchars($conn->error)); // În caz de eroare, afișează un mesaj și oprește scriptul
 }
 ?>
 
@@ -45,7 +58,7 @@ if (!$friends) {
         }
 
         .container {
-            padding-top: 100px; /* Adjust this value if your header height is different */
+            padding-top: 100px; /* Ajustează această valoare dacă înălțimea antetului este diferită */
         }
 
         .calendar-button {
@@ -123,19 +136,21 @@ if (!$friends) {
 </head>
 
 <body>
-    <?php
-    include 'header.php';
-    ?>
+    <?php include 'header.php'; // Include antetul sau bara de navigare ?>
+
     <div class="container">
         <h1>Friends</h1>
 
+        <!-- Buton pentru adăugarea unui prieten -->
         <a href="add_friend.php"><button id="addFriendButton">+</button></a>
+        <!-- Buton pentru gestionarea cererilor de prietenie -->
         <a href="manage_friend_requests.php"><button id="friendRequestsButton">?</button></a>
 
         <h2>Friends List</h2>
-        <?php if (mysqli_num_rows($friends) > 0): ?>
+        <?php if ($friends->num_rows > 0): ?>
+            <!-- Afiseaza lista de prieteni daca exista cel putin un prieten -->
             <ul class="friend-list">
-                <?php while ($row = mysqli_fetch_assoc($friends)): ?>
+                <?php while ($row = $friends->fetch_assoc()): ?>
                     <li>
                         <a href="view_common.php?friend=<?php echo htmlspecialchars($row['friend_username']); ?>">
                             <?php echo htmlspecialchars($row['friend_username']); ?>
@@ -144,6 +159,7 @@ if (!$friends) {
                 <?php endwhile; ?>
             </ul>
         <?php else: ?>
+            <!-- Afiseaza un mesaj daca nu exista prieteni -->
             <p id="noFriends">You have no friends yet.</p>
         <?php endif; ?>
     </div>

@@ -2,40 +2,53 @@
 session_start();
 include 'db.php';
 
+// Verifică dacă utilizatorul este autentificat
+if (!isset($_SESSION['id']) || !isset($_SESSION['username'])) {
+    header("Location: loginh.php");
+    exit();
+}
+
 $user_id = $_SESSION['id'];
 $user_name = $_SESSION['username'];
 $_SESSION['show_back_button'] = false;
 
 // Procesare formular pentru adăugarea unui calendar folosind un cod
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['calendar_code'])) {
-    $calendar_code = mysqli_real_escape_string($conn, $_POST['calendar_code']);
+    $calendar_code = trim($_POST['calendar_code']);
     
-    // Verificare existența calendarului în baza de date
-    $code_query = "SELECT id, adminId FROM calendar WHERE code='$calendar_code'";
-    $code_result = mysqli_query($conn, $code_query);
+    // Verificare existența calendarului în baza de date folosind prepared statements
+    $stmt = $conn->prepare("SELECT id, adminId FROM calendar WHERE code = ?");
+    $stmt->bind_param("s", $calendar_code);
+    $stmt->execute();
+    $result = $stmt->get_result();
     
-    if (mysqli_num_rows($code_result) > 0) {
-        $calendar_row = mysqli_fetch_assoc($code_result);
+    if ($result->num_rows > 0) {
+        $calendar_row = $result->fetch_assoc();
         $calendar_id = $calendar_row['id'];
         $admin_id = $calendar_row['adminId'];
         
-        // Verificare prietenie
-        $friend_query = "
+        // Verificare prietenie folosind prepared statements
+        $stmt = $conn->prepare("
             SELECT * FROM friendship 
-            WHERE (userId1 = '$user_id' AND userId2 = '$admin_id') 
-               OR (userId1 = '$admin_id' AND userId2 = '$user_id')
-        ";
-        $friend_result = mysqli_query($conn, $friend_query);
+            WHERE (userId1 = ? AND userId2 = ?) 
+               OR (userId1 = ? AND userId2 = ?)
+        ");
+        $stmt->bind_param("iiii", $user_id, $admin_id, $admin_id, $user_id);
+        $stmt->execute();
+        $friend_result = $stmt->get_result();
 
-        if (mysqli_num_rows($friend_result) > 0) {
+        if ($friend_result->num_rows > 0) {
             // Verificare dacă utilizatorul este deja în calendar
-            $check_query = "SELECT * FROM userincalendar WHERE userId='$user_id' AND calendarId='$calendar_id'";
-            $check_result = mysqli_query($conn, $check_query);
+            $stmt = $conn->prepare("SELECT * FROM userincalendar WHERE userId = ? AND calendarId = ?");
+            $stmt->bind_param("ii", $user_id, $calendar_id);
+            $stmt->execute();
+            $check_result = $stmt->get_result();
             
-            if (mysqli_num_rows($check_result) == 0) {
+            if ($check_result->num_rows == 0) {
                 // Adăugare utilizator în calendar
-                $insert_query = "INSERT INTO userincalendar (userId, calendarId) VALUES ('$user_id', '$calendar_id')";
-                if (mysqli_query($conn, $insert_query)) {
+                $stmt = $conn->prepare("INSERT INTO userincalendar (userId, calendarId) VALUES (?, ?)");
+                $stmt->bind_param("ii", $user_id, $calendar_id);
+                if ($stmt->execute()) {
                     echo '<script>alert("You have been added to the calendar.");</script>';
                 } else {
                     echo '<script>alert("Error adding you to the calendar.");</script>';
@@ -49,10 +62,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['calendar_code'])) {
     } else {
         echo '<script>alert("Invalid calendar code.");</script>';
     }
+    $stmt->close();
 }
 
 // Modificăm interogarea pentru a include numele creatorului calendarului pentru calendarele adăugate prin cod
-$calendar_query = "
+$stmt = $conn->prepare("
     SELECT 
         u.username AS user_name, 
         c.name AS calendar_name, 
@@ -65,21 +79,23 @@ $calendar_query = "
     JOIN 
         user u ON u.id = uc.userId 
     WHERE 
-        uc.userId = $user_id
-";
-$calendar_result = mysqli_query($conn, $calendar_query);
+        uc.userId = ?
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$calendar_result = $stmt->get_result();
 include 'header.php';
 ?>
 <a href="creare_calendar.php"><button id="createButton">+</button></a>
 <div id="tableContainer">
 <?php
 // Verifică dacă s-au găsit calendare
-if (mysqli_num_rows($calendar_result) > 0) {
+if ($calendar_result->num_rows > 0) {
     // Există calendare la care utilizatorul este implicat, le afișăm
-    while ($row = mysqli_fetch_assoc($calendar_result)) {
+    while ($row = $calendar_result->fetch_assoc()) {
         // Afișează numele creatorului pentru calendarele adăugate prin cod
         $display_name = $row['user_name'] == $user_name ? $row['creator_name'] : $row['user_name'];
-        echo "<a href='calendar.php?calendar_id=$row[calendar_id]'><div class='calendar-button'>";
+        echo "<a href='calendar.php?calendar_id=" . htmlspecialchars($row['calendar_id']) . "'><div class='calendar-button'>";
         echo "<h3>" . htmlspecialchars($display_name) . " - " . htmlspecialchars($row['calendar_name']) . "</h3>";
         echo "</div></a>";
     }
