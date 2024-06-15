@@ -1,49 +1,66 @@
 <?php
 
 include 'db.php';
+session_start();
+
+// Generare token CSRF
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Verifică dacă formularul de înregistrare a fost trimis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Verificare token CSRF
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo "<script>alert('Invalid CSRF token');</script>";
+        exit;
+    }
 
     // Preia datele introduse de utilizator din formular și evită injectarea SQL
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $rpassword = mysqli_real_escape_string($conn, $_POST['password-r']);
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+    $email = trim($_POST['email']);
+    $rpassword = trim($_POST['password-r']);
 
     if ($password != $rpassword) {
-        echo "Parolele nu sunt identice";
+        echo "<script>alert('Parolele nu sunt identice');</script>";
     } elseif (strlen($password) < 4) {
         echo "<script>alert('Parola trebuie sa aiba minim 4 caractere');</script>";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>alert('Adresa de email nu este validă.');</script>";
     } else {
         // Verifică dacă există deja un utilizator cu același email
-        $check_email_query = "SELECT * FROM user WHERE email='$email'";
-        $check_email_result = mysqli_query($conn, $check_email_query);
+        $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        if (mysqli_num_rows($check_email_result) > 0) {
+        if ($result->num_rows > 0) {
             echo "<script>alert('Exista deja un utilizator cu acest email.');</script>";
         } else {
             // Verifică dacă există deja un utilizator cu același nume de utilizator
-            $check_user_query = "SELECT * FROM user WHERE username='$username'";
-            $check_user_result = mysqli_query($conn, $check_user_query);
+            $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-            if (mysqli_num_rows($check_user_result) > 0) {
-                echo "Acest nume de utilizator este deja folosit.";
+            if ($result->num_rows > 0) {
+                echo "<script>alert('Acest nume de utilizator este deja folosit.');</script>";
             } else {
                 // Hash parola utilizând funcția password_hash()
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
                 // Inserează utilizatorul în baza de date
-                $insert_user_query = "INSERT INTO user (username, password , email) VALUES ('$username', '$hashed_password' , '$email')";
-                if (mysqli_query($conn, $insert_user_query)) {
+                $stmt = $conn->prepare("INSERT INTO user (username, password, email) VALUES (?, ?, ?)");
+                $stmt->bind_param("sss", $username, $hashed_password, $email);
+                if ($stmt->execute()) {
                     echo "<script>alert('Cont creat cu succes'); window.location='loginh.php';</script>";
                 } else {
-                    echo "Eroare la înregistrare. Încercați din nou mai târziu.";
+                    echo "<script>alert('Eroare la înregistrare. Încercați din nou mai târziu.');</script>";
                 }
             }
         }
+        $stmt->close();
     }
 
     mysqli_close($conn);
@@ -136,6 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label>Email:</label>
                 <input type="text" name="email" required>
             </div>
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <div>
                 <input type="submit" value="Înregistrare">
             </div>

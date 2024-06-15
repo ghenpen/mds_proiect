@@ -1,3 +1,43 @@
+<?php
+session_start();
+
+// Redirect user if already logged in
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    header("location: homepage.php");
+    exit;
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    include 'db.php';
+
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    // Prepare SQL statement to prevent SQL Injection
+    $stmt = $conn->prepare("SELECT id, username, password FROM user WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    if ($result->num_rows == 1) {
+        if (password_verify($password, $row['password'])) {
+            $_SESSION['loggedin'] = true;
+            $_SESSION['id'] = $row['id'];
+            $_SESSION['username'] = $username;
+            header("location: homepage.php");
+            exit;
+        } else {
+            echo "<script>alert('Parolă incorectă.');</script>";
+        }
+    } else {
+        echo "<script>alert('Nu există niciun cont cu acest nume de utilizator.');</script>";
+    }
+    $stmt->close();
+    mysqli_close($conn);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -101,11 +141,10 @@
 <body>
     <?php include 'header.php'; ?>
     <div class="cont">
-        <img src="logo.png" alt="Logo"
-            style="display: inline-block; height: 50%;position: relative; right:100px; border-radius: 50px;">
+        <img src="logo.png" alt="Logo" style="display: inline-block; height: 50%;position: relative; right:100px; border-radius: 50px;">
         <div class="container">
             <h2>Formular de Login</h2>
-            <form action="login.php" method="post">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                 <div class="form-group">
                     <label for="username">Nume Utilizator:</label>
                     <input type="text" class="form-control" id="username" name="username" required>
