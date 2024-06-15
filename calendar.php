@@ -158,23 +158,7 @@
             ?>
         
             <div class="legend">
-                <h3>Legenda:</h3>
-                <?php
-                include 'db.php';
-                $event_query = "SELECT description, type FROM event WHERE calendarId = $calendar_id";
-                $event_result = mysqli_query($conn, $event_query);
-
-                if (mysqli_num_rows($event_result) > 0) {
-                    echo "<ul>";
-                    while ($row = mysqli_fetch_assoc($event_result)) {
-                        echo "<li><div class='event-color' style='width:20px; height:20px; background-color:" . $row['type'] . "'></div>" . $row['description'] . "</li>";
-                    }
-                    echo "</ul>";
-                    echo "</div>";
-                } else {
-                    echo "Nu există evenimente de afișat în legendă.";
-                }
-                ?>
+                <iframe src="legend.php?calendar_id=<?php echo $calendar_id; ?>" width="350" height="500"></iframe>
             </div>
         </div>
 </div>
@@ -432,11 +416,11 @@
                 let listItem = document.createElement("li");
                 listItem.innerHTML = `${event.time} - ${event.description} <br>
                 <label for="availability-${event.id}"></label>
-                <select id="availability-${event.id}" onchange="updateAvailability(${event.id})">
-                    <option value="available">Available</option>
-                    <option value="not sure">Not Sure</option>
-                    <option value="unavailable">Unavailable</option>
-                </select>`;
+                <div id="availability-${event.id}">
+                <button onclick="updateAvailability(${event.id}, 'available')">Available</button>
+                <button onclick="updateAvailability(${event.id}, 'not sure')">Not Sure</button>
+                <button onclick="updateAvailability(${event.id}, 'unavailable')">Unavailable</button>
+                </div>`
                 eventList.appendChild(listItem);
             });
 
