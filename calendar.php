@@ -158,23 +158,7 @@
             ?>
         
             <div class="legend">
-                <h3>Legenda:</h3>
-                <?php
-                include 'db.php';
-                $event_query = "SELECT description, type FROM event WHERE calendarId = $calendar_id";
-                $event_result = mysqli_query($conn, $event_query);
-
-                if (mysqli_num_rows($event_result) > 0) {
-                    echo "<ul>";
-                    while ($row = mysqli_fetch_assoc($event_result)) {
-                        echo "<li><div class='event-color' style='width:20px; height:20px; background-color:" . $row['type'] . "'></div>" . $row['description'] . "</li>";
-                    }
-                    echo "</ul>";
-                    echo "</div>";
-                } else {
-                    echo "Nu există evenimente de afișat în legendă.";
-                }
-                ?>
+                <iframe src="legend.php?calendar_id=<?php echo $calendar_id; ?>" width="250" height="200"></iframe>
             </div>
         </div>
 </div>
