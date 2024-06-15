@@ -167,6 +167,16 @@
             <span class="close" onclick="closePopup()">&times;</span>
             <h2>Events on <span id="popupDate"></span></h2>
             <ul id="eventList"></ul>
+            <div id="availabilitySection" style="display: none;">
+                <h3>Join Event</h3>
+                <label for="availabilityStatus">Availability:</label>
+                <select id="availabilityStatus" name="availabilityStatus" required>
+                    <option value="available">Available</option>
+                    <option value="not_available">Not Available</option>
+                    <option value="not_sure">Not Sure</option>
+                </select><br>
+                <button id="joinButton">Submit</button>
+            </div>
         </div>
     </div>
     <?php
@@ -195,28 +205,35 @@
             
         }
     }
-    $query = "SELECT date, time, type, description FROM event WHERE calendarId = '$calendar_id'";
+    $query = "SELECT id , date, time, type, description FROM event WHERE calendarId = '$calendar_id'";
     $result = mysqli_query($conn, $query);
     $events = array();
+    $users = array();
     while ($row = mysqli_fetch_assoc($result)) {
         $events[] = $row;
     }
+    $userquery="SELECT e.id , e.date, e.time, u.username, ue.displonibility FROM event e join userinevent ue ON e.id = ue.eventId join user u ON u.id = ue.userId WHERE calendarId ='$calendar_id'";
+    $userresult = mysqli_query($conn, $userquery);
+    while ($row = mysqli_fetch_assoc($userresult)) {
+        $users[] = $row;
+    }
+    $usersJson = json_encode($users);
     $eventsJson = json_encode($events);
     mysqli_close($conn);
     ?>
     <script>
         let eventsphp = <?php echo $eventsJson; ?>;
-        console.log(eventsphp);
+        let usersphp = <?php echo $usersJson; ?>;
+        console.log(usersphp);
         let events = [];
-        let eventIdCounter = 1;
 
         eventsphp.forEach(event => {
+            let eventId = event.id;
             let date = event.date;
             let time = event.time;
             let type = event.type;
             let description = event.description;
             if (date && type) {
-                let eventId = eventIdCounter++;
                 events.push({
                     id: eventId,
                     date: date,
@@ -406,38 +423,92 @@
         }
 
         function showPopup(date, month, year) {
-            let eventsOnDate = getEventsOnDate(date, month, year);
-            eventsOnDate.sort((a, b) => new Date(`1970-01-01T${a.time}`) - new Date(`1970-01-01T${b.time}`));
+    let eventsOnDate = getEventsOnDate(date, month, year);
+    eventsOnDate.sort((a, b) => new Date(`1970-01-01T${a.time}`) - new Date(`1970-01-01T${b.time}`));
 
-            let eventList = document.getElementById("eventList");
-            eventList.innerHTML = "";
+    let eventList = document.getElementById("eventList");
+    eventList.innerHTML = "";
 
-            eventsOnDate.forEach(event => {
-                let listItem = document.createElement("li");
-                listItem.innerHTML = `${event.time} - ${event.description} <br>
-                <label for="availability-${event.id}"></label>
-                <div id="availability-${event.id}">
-                <button onclick="updateAvailability(${event.id}, 'available')">Available</button>
-                <button onclick="updateAvailability(${event.id}, 'not sure')">Not Sure</button>
-                <button onclick="updateAvailability(${event.id}, 'unavailable')">Unavailable</button>
-                </div>`
-                eventList.appendChild(listItem);
+    eventsOnDate.forEach(event => {
+        let listItem = document.createElement("li");
+        listItem.innerHTML = `${event.time} - ${event.description}`;
+        
+        // Afișează utilizatorii și disponibilitatea acestora
+        let usersForEvent = usersphp.filter(user => user.id === event.id);
+        console.log(usersForEvent);
+        if (usersForEvent.length > 0) {
+            let userList = document.createElement("ul");
+            usersForEvent.forEach(user => {
+                let userItem = document.createElement("li");
+                userItem.innerHTML = `${user.username}: ${user.displonibility}`;
+                userList.appendChild(userItem);
             });
-
-            document.getElementById("popupDate").textContent = `${date} ${months[month]} ${year}`;
-            document.getElementById("eventPopup").style.display = "block";
+            listItem.appendChild(userList);
+        } else {
+            let noUsers = document.createElement("p");
+            noUsers.innerHTML = "No users available.";
+            listItem.appendChild(noUsers);
         }
+        // Adaugă un buton "Join" pentru a seta disponibilitatea
+        let joinButton = document.createElement("button");
+        joinButton.innerHTML = "Join";
+        joinButton.onclick = function() {
+            let availabilityStatus = prompt("Enter your availability (available, not_available, not_sure):");
+            if (availabilityStatus) {
+                sendAvailability(event.id, availabilityStatus);
+            }
+        };
+        listItem.appendChild(joinButton);
+        eventList.appendChild(listItem);
+    });
+
+    document.getElementById("popupDate").textContent = `${date} ${months[month]} ${year}`;
+    document.getElementById("eventPopup").style.display = "block";
+}
 
         function closePopup() {
             document.getElementById("eventPopup").style.display = "none";
         }
+        function showAvailabilityForm(eventId, eventTime) {
+    document.getElementById("availabilitySection").style.display = "block";
+    document.getElementById("eventList").style.display = "none";
+    document.getElementById("popupDate").style.display = "none";
+    window.currentEventId = eventId;
+}
 
-        function updateAvailability(eventId) {
-            let selectElement = document.getElementById(`availability-${eventId}`);
-            let availabilityValue = selectElement.value;
-            availability[eventId] = availabilityValue;
-            console.log(`Availability for event ${eventId}: ${availabilityValue}`);
+function sendAvailability(eventId, availabilityStatus) {
+    let userId = <?php echo $user_id;?>;
+
+    console.log("Sending data:", userId, eventId, availabilityStatus);
+
+    $.ajax({
+        type: 'POST',
+        url: 'submit_availability.php',
+        data: {
+            userId: userId,
+            eventId: eventId,
+            availabilityStatus: availabilityStatus
+        },
+        success: function(response) {
+            console.log("Response from PHP:", response);
+            alert(response); // Afișează răspunsul de la PHP
+        },
+        error: function(xhr, status, error) {
+            console.error("Error:", xhr.status, error);
+            alert("Error submitting availability. Please try again.");
         }
+    });
+}
+
+// Modify the join button's onclick function in showPopup
+joinButton.onclick = function() {
+    let eventId = event.id;
+    let availabilityStatus = prompt("Enter your availability (available, not_available, not_sure):");
+    if (availabilityStatus) {
+        sendAvailability(eventId, availabilityStatus);
+    }
+};
+
 
         showCalendar(currentMonth, currentYear);
     </script>

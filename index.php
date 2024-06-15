@@ -41,10 +41,6 @@
             from {
                 opacity: 0;
             }
-<<<<<<< HEAD
-
-=======
->>>>>>> 08c1194ee6f4f68964a2e24abb4736b25b72ee6f
             to {
                 opacity: 1;
             }
