@@ -127,6 +127,11 @@
 <body>
     <?php
     session_start();
+    if (!isset($_SESSION['id'])) {
+        header('Location: loginh.php');
+        exit();
+    }
+
     include 'db.php';
 
     $user_id = $_SESSION['id'];
@@ -137,80 +142,90 @@
 
     if (isset($_GET['calendar_id'])) {
         $calendar_id = $_GET['calendar_id'];
-        $name = "SELECT name FROM calendar WHERE id = $calendar_id";
-        $result = mysqli_query($conn, $name);
-        $row = mysqli_fetch_assoc($result);
+
+        // Use prepared statement to prevent SQL injection
+        $stmt = $conn->prepare("SELECT name FROM calendar WHERE id = ?");
+        $stmt->bind_param("i", $calendar_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+
+        $currentDate = date('Y-m-d');
+        $deleteExpiredEventsQuery = "DELETE FROM event WHERE date < ? AND calendarId = ?";
+        $stmt = $conn->prepare($deleteExpiredEventsQuery);
+        $stmt->bind_param("si", $currentDate, $calendar_id);
+        $stmt->execute();
     } else {
         echo "Nu ați specificat un ID de calendar.";
     }
     ?>
-<div class="tot">
-    <div class="wrapper">
-        <div class="container-calendar">
-            <div id="left">
-                <h1><?php echo $row['name']; ?></h1>
-                <form method="post" id="eventForm">
-                    <div id="event-section">
-                    <input type="hidden" name="form_typev" value="event_form">
-                        <h3>Add Event</h3>
-                        <label for="eventDate">Date:</label>
-                        <input type="date" id="eventDate" name="eventDate" required><br>
-                        <label for="eventTime">Time:</label>
-                        <input type="time" id="eventTime" name="eventTime" required><br>
-                        <label for="eventLocation">Location:</label>
-                        <input type="text" id="eventLocation" name="eventLocation" placeholder="Event Location" required><br>
-                        <label for="eventTitle">Title:</label>
-                        <input type="text" id="eventTitle" name="eventTitle" placeholder="Event Title" required><br>
-                        <label for="eventDescription">Description:</label>
-                        <input type="text" id="eventDescription" name="eventDescription" placeholder="Event Description"><br>
-                        <label for="eventColor">Color:</label>
-                        <input type="color" id="eventColor" name="eventColor" required><br>
-                        <button type="submit" id="addEvent">Add</button>
-                    </div>
-                </form>
-            </div>
-            <div id="right">
-                <h3 id="monthAndYear"></h3>
-                <div class="button-container-calendar">
-                    <button id="previous" onclick="previous()">&#10094;</button>
-                    <button id="next" onclick="next()">&#10095;</button>
+    <div class="tot">
+        <div class="wrapper">
+            <div class="container-calendar">
+                <div id="left">
+                    <h1><?php echo htmlspecialchars($row['name']); ?></h1>
+                    <form method="post" id="eventForm">
+                        <div id="event-section">
+                            <input type="hidden" name="form_typev" value="event_form">
+                            <h3>Add Event</h3>
+                            <label for="eventDate">Date:</label>
+                            <input type="date" id="eventDate" name="eventDate" required><br>
+                            <label for="eventTime">Time:</label>
+                            <input type="time" id="eventTime" name="eventTime" required><br>
+                            <label for="eventLocation">Location:</label>
+                            <input type="text" id="eventLocation" name="eventLocation" placeholder="Event Location" required><br>
+                            <label for="eventTitle">Title:</label>
+                            <input type="text" id="eventTitle" name="eventTitle" placeholder="Event Title" required><br>
+                            <label for="eventDescription">Description:</label>
+                            <input type="text" id="eventDescription" name="eventDescription" placeholder="Event Description"><br>
+                            <label for="eventColor">Color:</label>
+                            <input type="color" id="eventColor" name="eventColor" required><br>
+                            <button type="submit" id="addEvent">Add</button>
+                        </div>
+                    </form>
                 </div>
-                <table class="table-calendar" id="calendar" data-lang="en">
-                    <thead id="thead-month"></thead>
-                    <tbody id="calendar-body"></tbody>
-                </table>
-                <div class="footer-container-calendar">
-                    <label for="month">Jump To: </label>
-                    <select id="month" onchange="jump()">
-                        <option value=0>Jan</option>
-                        <option value=1>Feb</option>
-                        <option value=2>Mar</option>
-                        <option value=3>Apr</option>
-                        <option value=4>May</option>
-                        <option value=5>Jun</option>
-                        <option value=6>Jul</option>
-                        <option value=7>Aug</option>
-                        <option value=8>Sep</option>
-                        <option value=9>Oct</option>
-                        <option value=10>Nov</option>
-                        <option value=11>Dec</option>
-                    </select>
-                    <select id="year" onchange="jump()"></select>
+                <div id="right">
+                    <h3 id="monthAndYear"></h3>
+                    <div class="button-container-calendar">
+                        <button id="previous" onclick="previous()">&#10094;</button>
+                        <button id="next" onclick="next()">&#10095;</button>
+                    </div>
+                    <table class="table-calendar" id="calendar" data-lang="en">
+                        <thead id="thead-month"></thead>
+                        <tbody id="calendar-body"></tbody>
+                    </table>
+                    <div class="footer-container-calendar">
+                        <label for="month">Jump To: </label>
+                        <select id="month" onchange="jump()">
+                            <option value=0>Jan</option>
+                            <option value=1>Feb</option>
+                            <option value=2>Mar</option>
+                            <option value=3>Apr</option>
+                            <option value=4>May</option>
+                            <option value=5>Jun</option>
+                            <option value=6>Jul</option>
+                            <option value=7>Aug</option>
+                            <option value=8>Sep</option>
+                            <option value=9>Oct</option>
+                            <option value=10>Nov</option>
+                            <option value=11>Dec</option>
+                        </select>
+                        <select id="year" onchange="jump()"></select>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
         <div class="cod">
             <?php 
-                include 'db.php';
+                $stmt = $conn->prepare("SELECT code FROM calendar WHERE id = ?");
+                $stmt->bind_param("i", $calendar_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-                $event_query = "SELECT code FROM calendar WHERE id = $calendar_id";
-                $event_result = mysqli_query($conn, $event_query);
-
-                if(mysqli_num_rows($event_result) > 0) {
-                    $row = mysqli_fetch_assoc($event_result);
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
                     $code = $row['code'];
-                ?>
+            ?>
             <div>
                 <label for="calendarCode">Codul calendarului:</label>
                 <input type="text" id="calendarCode" value="<?php echo htmlspecialchars($code); ?>" readonly>
@@ -227,15 +242,14 @@
             </script>
             <?php
                 } else {
-                echo "Codul nu a fost găsit.";
+                    echo "Codul nu a fost găsit.";
                 }
             ?>
-        
             <div class="legend">
                 <iframe src="legend.php?calendar_id=<?php echo $calendar_id; ?>" width="350" height="500" style="border:none; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);"></iframe>
             </div>
         </div>
-</div>
+    </div>
     <div id="eventPopup" class="popup">
         <div class="popup-content">
             <span class="close" onclick="closePopup()">&times;</span>
@@ -256,73 +270,86 @@
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['form_typev']) && $_POST['form_typev'] == 'event_form') {
-        include 'db.php';
+            include 'db.php';
 
-        $eventDate = $_POST['eventDate'];
-        $eventTime = $_POST['eventTime'];
-        $eventLocation = $_POST['eventLocation'];
-        $eventDescription = $_POST['eventDescription'];
-        $eventColor = $_POST['eventColor'];
+            $eventDate = $_POST['eventDate'];
+            $eventTime = $_POST['eventTime'];
+            $eventLocation = $_POST['eventLocation'];
+            $eventTitle = $_POST['eventTitle'];
+            $eventDescription = $_POST['eventDescription'];
+            $eventColor = $_POST['eventColor'];
 
-        $query = "SELECT * FROM event WHERE type = '$eventColor' and calendarId = '$calendar_id'";
-        $result = mysqli_query($conn, $query);
-        if (mysqli_num_rows($result) > 0) {
-            echo "<script>alert('Evenimentul nu poate fi adăugat. Alegeți o altă culoare.');</script>";
-        } else {
-            $sql = "INSERT INTO event (calendarId, date, time, location, description, type) 
-                    VALUES ('$calendar_id','$eventDate', '$eventTime', '$eventLocation', '$eventDescription', '$eventColor')";
+            $stmt = $conn->prepare("SELECT * FROM event WHERE type = ? and calendarId = ?");
+            $stmt->bind_param("si", $eventColor, $calendar_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-            if (mysqli_query($conn, $sql)) {
-                echo "<script>alert('Eveniment adăugat cu succes!');</script>";
+            if ($result->num_rows > 0) {
+                echo "<script>alert('Evenimentul nu poate fi adăugat. Alegeți o altă culoare.');</script>";
             } else {
-                echo "Eroare: " . $sql . "<br>" . mysqli_error($conn);
+                $stmt = $conn->prepare("INSERT INTO event (calendarId, date, time, location, title, description, type) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssss", $calendar_id, $eventDate, $eventTime, $eventLocation, $eventTitle, $eventDescription, $eventColor);
+
+                if ($stmt->execute()) {
+                    echo "<script>alert('Eveniment adăugat cu succes!');</script>";
+                } else {
+                    echo "Eroare: " . $stmt->error;
+                }
             }
-            
         }
     }
-}
-    $query = "SELECT id , date, time, type, description FROM event WHERE calendarId = '$calendar_id'";
-    $result = mysqli_query($conn, $query);
+
+    $stmt = $conn->prepare("SELECT id , date, time, type, description FROM event WHERE calendarId = ?");
+    $stmt->bind_param("i", $calendar_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $events = array();
     $users = array();
-    while ($row = mysqli_fetch_assoc($result)) {
+    while ($row = $result->fetch_assoc()) {
         $events[] = $row;
     }
-    $userquery="SELECT e.id , e.date, e.time, u.username, ue.displonibility FROM event e join userinevent ue ON e.id = ue.eventId join user u ON u.id = ue.userId WHERE calendarId ='$calendar_id'";
-    $userresult = mysqli_query($conn, $userquery);
-    while ($row = mysqli_fetch_assoc($userresult)) {
+
+    $userquery = "SELECT e.id , e.date, e.time, u.username, ue.displonibility FROM event e JOIN userinevent ue ON e.id = ue.eventId JOIN user u ON u.id = ue.userId WHERE calendarId = ?";
+    $stmt = $conn->prepare($userquery);
+    $stmt->bind_param("i", $calendar_id);
+    $stmt->execute();
+    $userresult = $stmt->get_result();
+    while ($row = $userresult->fetch_assoc()) {
         $users[] = $row;
     }
+
     $usersJson = json_encode($users);
     $eventsJson = json_encode($events);
-    mysqli_close($conn);
+    $conn->close();
     ?>
     <section class="comentari">
         <h2>Comentarii</h2>
         <div class="com">
-        <iframe src="comments.php?calendar_id=<?php echo $calendar_id; ?>"></iframe>
-        <hr style="height:5px;border-width:0;color:#ffd2c6;background-color:#ffd2c6; opacity:0.5">
-        <form method="post" id="comform">
-            <input type="hidden" name="form_type" value="com_form">
-            <textarea name="comment" id="comment" cols="60" rows="3" placeholder="Text here"></textarea>
-            <input type="submit" value="Submit" id="submit">
-        </form>
+            <iframe src="comments.php?calendar_id=<?php echo $calendar_id; ?>"></iframe>
+            <hr style="height:5px;border-width:0;color:#ffd2c6;background-color:#ffd2c6; opacity:0.5">
+            <form method="post" id="comform">
+                <input type="hidden" name="form_type" value="com_form">
+                <textarea name="comment" id="comment" cols="60" rows="3" placeholder="Text here"></textarea>
+                <input type="submit" value="Submit" id="submit">
+            </form>
         </div>
         <?php
-        include 'db.php';
-        if($_SERVER["REQUEST_METHOD"] == "POST") {
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (isset($_POST['form_type']) && $_POST['form_type'] == 'com_form') {
-            $comment = $_POST['comment'];
-            $created_at = date('Y-m-d H:i:s');
-            $sql = "INSERT INTO comments (calendar_id,user_id, comment,created_at) VALUES ('$calendar_id','$user_id', '$comment','$created_at')";
-            if (mysqli_query($conn, $sql)) {
-                echo "<script>alert('Comentariul a fost adăugat cu succes!');</script>";
-            } else {
-                echo "Eroare: " . $sql . "<br>" . mysqli_error($conn);
+                include 'db.php';
+                $comment = $_POST['comment'];
+                $created_at = date('Y-m-d H:i:s');
+                $stmt = $conn->prepare("INSERT INTO comments (calendar_id, user_id, comment, created_at) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("iiss", $calendar_id, $user_id, $comment, $created_at);
+
+                if ($stmt->execute()) {
+                    echo "<script>alert('Comentariul a fost adăugat cu succes!');</script>";
+                } else {
+                    echo "Eroare: " . $stmt->error;
+                }
             }
         }
-    }
-    ?>
+        ?>
     </section>
 
     <script>
@@ -472,7 +499,7 @@
                             eventsOnThisDate.forEach(event => {
                                 let eventIndicator = document.createElement("div");
                                 eventIndicator.className = "event-indicator";
-                                eventIndicator.style.backgroundColor = event.type;
+                                eventIndicator.style.backgroundColor = event.type; // Set the color of the event
                                 cell.appendChild(eventIndicator);
                             });
                         }
@@ -491,6 +518,22 @@
                 tbl.appendChild(row);
             }
         }
+
+        function hasEventOnDate(date, month, year) {
+            return getEventsOnDate(date, month, year).length > 0;
+        }
+
+        function getEventsOnDate(date, month, year) {
+            return events.filter(function (event) {
+                let eventDate = new Date(event.date);
+                return (
+                eventDate.getDate() === parseInt(date) &&
+                eventDate.getMonth() === parseInt(month) &&
+                eventDate.getFullYear() === parseInt(year)
+                );
+            });
+        }
+
 
         function createEventTooltip(date, month, year) {
             let tooltip = document.createElement("div");
@@ -527,92 +570,92 @@
         }
 
         function showPopup(date, month, year) {
-    let eventsOnDate = getEventsOnDate(date, month, year);
-    eventsOnDate.sort((a, b) => new Date(`1970-01-01T${a.time}`) - new Date(`1970-01-01T${b.time}`));
+            let eventsOnDate = getEventsOnDate(date, month, year);
+            eventsOnDate.sort((a, b) => new Date(`1970-01-01T${a.time}`) - new Date(`1970-01-01T${b.time}`));
 
-    let eventList = document.getElementById("eventList");
-    eventList.innerHTML = "";
+            let eventList = document.getElementById("eventList");
+            eventList.innerHTML = "";
 
-    eventsOnDate.forEach(event => {
-        let listItem = document.createElement("li");
-        listItem.innerHTML = `${event.time} - ${event.description}`;
-        
-        // Afișează utilizatorii și disponibilitatea acestora
-        let usersForEvent = usersphp.filter(user => user.id === event.id);
-        console.log(usersForEvent);
-        if (usersForEvent.length > 0) {
-            let userList = document.createElement("ul");
-            usersForEvent.forEach(user => {
-                let userItem = document.createElement("li");
-                userItem.innerHTML = `${user.username}: ${user.displonibility}`;
-                userList.appendChild(userItem);
+            eventsOnDate.forEach(event => {
+                let listItem = document.createElement("li");
+                listItem.innerHTML = `${event.time} - ${event.description}`;
+                
+                // Afișează utilizatorii și disponibilitatea acestora
+                let usersForEvent = usersphp.filter(user => user.id === event.id);
+                console.log(usersForEvent);
+                if (usersForEvent.length > 0) {
+                    let userList = document.createElement("ul");
+                    usersForEvent.forEach(user => {
+                        let userItem = document.createElement("li");
+                        userItem.innerHTML = `${user.username}: ${user.displonibility}`;
+                        userList.appendChild(userItem);
+                    });
+                    listItem.appendChild(userList);
+                } else {
+                    let noUsers = document.createElement("p");
+                    noUsers.innerHTML = "No users available.";
+                    listItem.appendChild(noUsers);
+                }
+                // Adaugă un buton "Join" pentru a seta disponibilitatea
+                let joinButton = document.createElement("button");
+                joinButton.innerHTML = "Join";
+                joinButton.onclick = function() {
+                    let availabilityStatus = prompt("Enter your availability (available, not_available, not_sure):");
+                    if (availabilityStatus) {
+                        sendAvailability(event.id, availabilityStatus);
+                    }
+                };
+                listItem.appendChild(joinButton);
+                eventList.appendChild(listItem);
             });
-            listItem.appendChild(userList);
-        } else {
-            let noUsers = document.createElement("p");
-            noUsers.innerHTML = "No users available.";
-            listItem.appendChild(noUsers);
-        }
-        // Adaugă un buton "Join" pentru a seta disponibilitatea
-        let joinButton = document.createElement("button");
-        joinButton.innerHTML = "Join";
-        joinButton.onclick = function() {
-            let availabilityStatus = prompt("Enter your availability (available, not_available, not_sure):");
-            if (availabilityStatus) {
-                sendAvailability(event.id, availabilityStatus);
-            }
-        };
-        listItem.appendChild(joinButton);
-        eventList.appendChild(listItem);
-    });
 
-    document.getElementById("popupDate").textContent = `${date} ${months[month]} ${year}`;
-    document.getElementById("eventPopup").style.display = "block";
-}
+            document.getElementById("popupDate").textContent = `${date} ${months[month]} ${year}`;
+            document.getElementById("eventPopup").style.display = "block";
+        }
 
         function closePopup() {
             document.getElementById("eventPopup").style.display = "none";
         }
+
         function showAvailabilityForm(eventId, eventTime) {
-    document.getElementById("availabilitySection").style.display = "block";
-    document.getElementById("eventList").style.display = "none";
-    document.getElementById("popupDate").style.display = "none";
-    window.currentEventId = eventId;
-}
-
-function sendAvailability(eventId, availabilityStatus) {
-    let userId = <?php echo $user_id;?>;
-
-    console.log("Sending data:", userId, eventId, availabilityStatus);
-
-    $.ajax({
-        type: 'POST',
-        url: 'submit_availability.php',
-        data: {
-            userId: userId,
-            eventId: eventId,
-            availabilityStatus: availabilityStatus
-        },
-        success: function(response) {
-            console.log("Response from PHP:", response);
-            alert(response); // Afișează răspunsul de la PHP
-        },
-        error: function(xhr, status, error) {
-            console.error("Error:", xhr.status, error);
-            alert("Error submitting availability. Please try again.");
+            document.getElementById("availabilitySection").style.display = "block";
+            document.getElementById("eventList").style.display = "none";
+            document.getElementById("popupDate").style.display = "none";
+            window.currentEventId = eventId;
         }
-    });
-}
 
-// Modify the join button's onclick function in showPopup
-joinButton.onclick = function() {
-    let eventId = event.id;
-    let availabilityStatus = prompt("Enter your availability (available, not_available, not_sure):");
-    if (availabilityStatus) {
-        sendAvailability(eventId, availabilityStatus);
-    }
-};
+        function sendAvailability(eventId, availabilityStatus) {
+            let userId = <?php echo $user_id;?>;
 
+            console.log("Sending data:", userId, eventId, availabilityStatus);
+
+            $.ajax({
+                type: 'POST',
+                url: 'submit_availability.php',
+                data: {
+                    userId: userId,
+                    eventId: eventId,
+                    availabilityStatus: availabilityStatus
+                },
+                success: function(response) {
+                    console.log("Response from PHP:", response);
+                    alert(response); // Afișează răspunsul de la PHP
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", xhr.status, error);
+                    alert("Error submitting availability. Please try again.");
+                }
+            });
+        }
+
+        // Modify the join button's onclick function in showPopup
+        joinButton.onclick = function() {
+            let eventId = event.id;
+            let availabilityStatus = prompt("Enter your availability (available, not_available, not_sure):");
+            if (availabilityStatus) {
+                sendAvailability(eventId, availabilityStatus);
+            }
+        };
 
         showCalendar(currentMonth, currentYear);
     </script>
