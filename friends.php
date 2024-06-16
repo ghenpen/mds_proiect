@@ -88,7 +88,7 @@ if (!$friends) {
         #addFriendButton,
         #friendRequestsButton {
             font-size: 5vw;
-            top: 15vh;
+            top: 19vh;
             position: absolute;
             left: 3vw;
             background-color: #ffd2c6;
@@ -101,7 +101,7 @@ if (!$friends) {
         }
 
         #friendRequestsButton {
-            top: 35vh;
+            top: 46vh;
         }
 
         .friend-list {
@@ -144,7 +144,7 @@ if (!$friends) {
         <!-- Buton pentru adăugarea unui prieten -->
         <a href="add_friend.php"><button id="addFriendButton">+</button></a>
         <!-- Buton pentru gestionarea cererilor de prietenie -->
-        <a href="manage_friend_requests.php"><button id="friendRequestsButton">?</button></a>
+        <a href="manage_friend_requests.php" ><button id="friendRequestsButton">?</button></a>
 
         <h2>Friends List</h2>
         <?php if ($friends->num_rows > 0): ?>

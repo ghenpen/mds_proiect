@@ -49,6 +49,10 @@
             text-decoration: none;
             cursor: pointer;
         }
+        .comentari{
+            position: relative;
+            top:200px;
+        }
     </style>
 </head>
 <body>
@@ -78,6 +82,7 @@
                 <h1><?php echo $row['name']; ?></h1>
                 <form method="post" id="eventForm">
                     <div id="event-section">
+                    <input type="hidden" name="form_typev" value="event_form">
                         <h3>Add Event</h3>
                         <label for="eventDate">Date:</label>
                         <input type="date" id="eventDate" name="eventDate" required><br>
@@ -181,6 +186,7 @@
     </div>
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST['form_typev']) && $_POST['form_typev'] == 'event_form') {
         include 'db.php';
 
         $eventDate = $_POST['eventDate'];
@@ -205,6 +211,7 @@
             
         }
     }
+}
     $query = "SELECT id , date, time, type, description FROM event WHERE calendarId = '$calendar_id'";
     $result = mysqli_query($conn, $query);
     $events = array();
@@ -221,6 +228,45 @@
     $eventsJson = json_encode($events);
     mysqli_close($conn);
     ?>
+    <section class="comentari">
+        <h2>Comentarii</h2>
+        <form method="post" id="comform">
+            <input type="hidden" name="form_type" value="com_form">
+            <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
+            <input type="submit" value="Submit">
+        </form>
+        <div id="comments">
+            <?php
+            include 'db.php';
+            $query = "SELECT * FROM comments WHERE calendar_id = '$calendar_id'";
+            $result = mysqli_query($conn, $query);
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo "<p>" . $row['comment'] . "</p>";
+                }
+            } else {
+                echo "<p>Nu există comentarii.</p>";
+            }
+            mysqli_close($conn);
+            ?>
+        </div>
+    <?php
+        include 'db.php';
+        if($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST['form_type']) && $_POST['form_type'] == 'com_form') {
+            $comment = $_POST['comment'];
+            $created_at = date('Y-m-d H:i:s');
+            $sql = "INSERT INTO comments (calendar_id,user_id, comment,created_at) VALUES ('$calendar_id','$user_id', '$comment','$created_at')";
+            if (mysqli_query($conn, $sql)) {
+                echo "<script>alert('Comentariul a fost adăugat cu succes!');</script>";
+            } else {
+                echo "Eroare: " . $sql . "<br>" . mysqli_error($conn);
+            }
+        }
+    }
+    ?>
+    </section>
+
     <script>
         let eventsphp = <?php echo $eventsJson; ?>;
         let usersphp = <?php echo $usersJson; ?>;

@@ -101,17 +101,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['id'])) {
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+        .inapoi {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px;
+            background-color: white;
+            color: pink;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
     </style>
 </head>
 
 <body>
     <?php include 'header.php'; // Include bara de navigare sau header-ul ?>
-
+    <button onclick="window.location.href='homepage.php'" class="inapoi">Înapoi</button>
     <div class="form-container">
         <form method="post">
             <label for="name">Nume Calendar:</label>
             <input type="text" id="name" name="name" required>
-            <button type="submit">Crează Calendar</button>
+            <button type="submit" style="background-color:pink">Crează Calendar</button>
         </form>
     </div>
 </body>
