@@ -275,6 +275,7 @@
             $eventDate = $_POST['eventDate'];
             $eventTime = $_POST['eventTime'];
             $eventLocation = $_POST['eventLocation'];
+            $eventTitle = $_POST['eventTitle'];
             $eventDescription = $_POST['eventDescription'];
             $eventColor = $_POST['eventColor'];
 
@@ -286,8 +287,8 @@
             if ($result->num_rows > 0) {
                 echo "<script>alert('Evenimentul nu poate fi adăugat. Alegeți o altă culoare.');</script>";
             } else {
-                $stmt = $conn->prepare("INSERT INTO event (calendarId, date, time, location, description, type) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("isssss", $calendar_id, $eventDate, $eventTime, $eventLocation, $eventDescription, $eventColor);
+                $stmt = $conn->prepare("INSERT INTO event (calendarId, date, time, location, title, description, type) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssss", $calendar_id, $eventDate, $eventTime, $eventLocation, $eventTitle, $eventDescription, $eventColor);
 
                 if ($stmt->execute()) {
                     echo "<script>alert('Eveniment adăugat cu succes!');</script>";
