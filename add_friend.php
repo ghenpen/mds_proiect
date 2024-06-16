@@ -117,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['username'])) {
         .form-container button {
             width: 100%;
             padding: 10px;
-            background-color: #007bff;
+            background-color: pink;
             color: #fff;
             border: none;
             border-radius: 5px;

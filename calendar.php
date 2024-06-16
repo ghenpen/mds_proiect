@@ -49,6 +49,10 @@
             text-decoration: none;
             cursor: pointer;
         }
+        .comentari{
+            position: relative;
+            top:200px;
+        }
     </style>
 </head>
 <body>
@@ -221,6 +225,97 @@
     $eventsJson = json_encode($events);
     mysqli_close($conn);
     ?>
+    <section class="comentari">
+    <h2>Secțiune Comentarii</h2>
+
+<!-- Formular pentru adăugarea de comentarii -->
+<form id="commentForm">
+    <textarea id="commentText" placeholder="Introduceți comentariul dvs."></textarea><br><br>
+    <button type="submit">Adăugare Comentariu</button>
+</form>
+
+<hr>
+
+<!-- Container pentru afișarea comentariilor existente -->
+<div id="commentsContainer">
+    <?php
+    // Include fișierul de conexiune la baza de date
+    include 'db.php';
+    $user_id = $_SESSION['id'];
+    $calendarId = $_GET['calendar_id'];
+    $sqll = "Select username from user where id = '$user_id'";
+    $result = mysqli_query($conn, $sqll);
+    $row = mysqli_fetch_assoc($result);
+    $user_name = $row['username'];
+    $userJson=json_encode($user_name);
+    $calendarJson=json_encode($calendarId);
+    
+    $sql = "SELECT * FROM comments WHERE id = $calendarId ORDER BY created_at DESC";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+        // Afisează fiecare comentariu
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo '<div class="comment">';
+            echo '<p><strong>Utilizator:</strong> ' . $row['user_id'] . '</p>';
+            echo '<p><strong>Data și ora:</strong> ' . $row['created_at'] . '</p>';
+            echo '<p><strong>Comentariu:</strong><br>' . $row['comment'] . '</p>';
+            echo '</div>';
+        }
+    } else {
+        echo "Nu există comentarii pentru acest eveniment.";
+    }
+
+    // Închide conexiunea la baza de date la finalul scriptului
+    mysqli_close($conn);
+    ?>
+</div>
+</section>
+<!-- Script JavaScript cu jQuery pentru gestionarea adăugării de comentarii -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Gestionarea trimiterii formularului pentru adăugarea de comentarii
+        $('#commentForm').submit(function(event) {
+            event.preventDefault(); // Previne trimiterea formularului
+
+            var calendarId = <?php echo $calendar_id; ?>;
+            var userName = <?php echo $userJson; ?>;
+            var commentText = $('#commentText').val();
+
+            // Verifică dacă utilizatorul a completat numele și comentariul
+            if (userName.trim() == '' || commentText.trim() == '') {
+                alert('Vă rugăm să completați toate câmpurile.');
+                return;
+            }
+
+            // Trimite datele către PHP pentru a adăuga comentariul în baza de date
+            $.ajax({
+                type: 'POST',
+                url: 'adauga_comentariu.php', // Scriptul PHP care va gestiona adăugarea comentariului
+                data: {
+                    calendar_id: calendarId,
+                    user_name: userName,
+                    comment: commentText
+                },
+                success: function(response) {
+                    // Răspunsul de la server după ce s-a adăugat comentariul
+                    console.log(response);
+                    // Reîmprospătează lista de comentarii pentru a afișa noul comentariu
+                    $('#commentsContainer').load(location.href + ' #commentsContainer');
+                },
+                error: function(error) {
+                    // Tratează erorile în cazul în care apelul AJAX a eșuat
+                    console.error('Eroare la adăugarea comentariului:', error);
+                }
+            });
+
+            // Resetează valorile câmpurilor după adăugarea comentariului
+            $('#userName').val('');
+            $('#commentText').val('');
+        });
+    });
+</script>
     <script>
         let eventsphp = <?php echo $eventsJson; ?>;
         let usersphp = <?php echo $usersJson; ?>;
