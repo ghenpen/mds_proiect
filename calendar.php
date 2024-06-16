@@ -6,7 +6,122 @@
     <title>Calendar</title>
     <link rel="stylesheet" href="./style.css">
     <style>
-        /* Your existing CSS styles */
+        .cod{
+            flex: 0 0 30%;
+            padding-left: 20px;
+        }
+        .com{
+            border: 7px solid #ffd2c6;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 90%;
+            height: 400px;
+            position: relative;
+            left: 5%;
+        }
+        .comentari{
+            flex: 0 0 70%;
+            padding-right: 20px;
+        }
+        .comentari h2{
+            text-align: center;
+            position: relative;
+            background-color: rgba(255, 210, 198, 0.5);
+            color: white;
+            border-radius: 5px;
+            width: 100%;
+            position: relative;
+            left: 1%;
+
+        }
+        #calendarCode{
+            border: none;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        #copy{
+            background-color: #ffd2c6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            position: relative;
+            left: 1%;
+        }
+        #submit{
+            background-color: #ffd2c6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            width: 100px;
+            position: relative;
+            left: 45%;
+            bottom: 0px;
+        }
+        .comentari iframe{
+            width: 95%;
+            height: 200px;
+            top: 10px;
+            position: relative;
+            left: 1%;
+            border: none;
+        }
+        .comentari textarea{
+            width: 98%;
+            height: 100px;
+            border: none;
+            position: relative;
+            left: 1%;
+            background-color: #f2f2f2;
+        }
+        .comentari textarea:focus{
+            outline: none;
+        }
+        .event-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 2px;
+            display: inline-block;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .popup-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .comentari{
+            position: relative;
+            top:200px;
+        }
     </style>
 </head>
 <body>
@@ -383,7 +498,7 @@
                             eventsOnThisDate.forEach(event => {
                                 let eventIndicator = document.createElement("div");
                                 eventIndicator.className = "event-indicator";
-                                eventIndicator.style.backgroundColor = event.type;
+                                eventIndicator.style.backgroundColor = event.type; // Set the color of the event
                                 cell.appendChild(eventIndicator);
                             });
                         }
@@ -402,6 +517,22 @@
                 tbl.appendChild(row);
             }
         }
+
+        function hasEventOnDate(date, month, year) {
+            return getEventsOnDate(date, month, year).length > 0;
+        }
+
+        function getEventsOnDate(date, month, year) {
+            return events.filter(function (event) {
+                let eventDate = new Date(event.date);
+                return (
+                eventDate.getDate() === parseInt(date) &&
+                eventDate.getMonth() === parseInt(month) &&
+                eventDate.getFullYear() === parseInt(year)
+                );
+            });
+        }
+
 
         function createEventTooltip(date, month, year) {
             let tooltip = document.createElement("div");
