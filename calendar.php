@@ -10,6 +10,75 @@
             flex: 0 0 30%;
             padding-left: 20px;
         }
+        .com{
+            border: 7px solid #ffd2c6;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 90%;
+            height: 400px;
+            position: relative;
+            left: 5%;
+        }
+        .comentari{
+            flex: 0 0 70%;
+            padding-right: 20px;
+        }
+        .comentari h2{
+            text-align: center;
+            position: relative;
+            background-color: rgba(255, 210, 198, 0.5);
+            color: white;
+            border-radius: 5px;
+            width: 100%;
+            position: relative;
+            left: 1%;
+
+        }
+        #calendarCode{
+            border: none;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        #copy{
+            background-color: #ffd2c6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            position: relative;
+            left: 1%;
+        }
+        #submit{
+            background-color: #ffd2c6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            width: 100px;
+            position: relative;
+            left: 45%;
+            bottom: 0px;
+        }
+        .comentari iframe{
+            width: 95%;
+            height: 200px;
+            top: 10px;
+            position: relative;
+            left: 1%;
+            border: none;
+        }
+        .comentari textarea{
+            width: 98%;
+            height: 100px;
+            border: none;
+            position: relative;
+            left: 1%;
+            background-color: #f2f2f2;
+        }
+        .comentari textarea:focus{
+            outline: none;
+        }
         .event-indicator {
             width: 10px;
             height: 10px;
@@ -82,6 +151,7 @@
                 <h1><?php echo $row['name']; ?></h1>
                 <form method="post" id="eventForm">
                     <div id="event-section">
+                    <input type="hidden" name="form_typev" value="event_form">
                         <h3>Add Event</h3>
                         <label for="eventDate">Date:</label>
                         <input type="date" id="eventDate" name="eventDate" required><br>
@@ -144,7 +214,7 @@
             <div>
                 <label for="calendarCode">Codul calendarului:</label>
                 <input type="text" id="calendarCode" value="<?php echo htmlspecialchars($code); ?>" readonly>
-                <button onclick="copyToClipboard()">Copy</button>
+                <button onclick="copyToClipboard()" id="copy">Copy</button>
             </div>
             <script>
                 function copyToClipboard() {
@@ -162,7 +232,7 @@
             ?>
         
             <div class="legend">
-                <iframe src="legend.php?calendar_id=<?php echo $calendar_id; ?>" width="350" height="500"></iframe>
+                <iframe src="legend.php?calendar_id=<?php echo $calendar_id; ?>" width="350" height="500" style="border:none; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);"></iframe>
             </div>
         </div>
 </div>
@@ -185,6 +255,7 @@
     </div>
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST['form_typev']) && $_POST['form_typev'] == 'event_form') {
         include 'db.php';
 
         $eventDate = $_POST['eventDate'];
@@ -209,6 +280,7 @@
             
         }
     }
+}
     $query = "SELECT id , date, time, type, description FROM event WHERE calendarId = '$calendar_id'";
     $result = mysqli_query($conn, $query);
     $events = array();
@@ -226,96 +298,33 @@
     mysqli_close($conn);
     ?>
     <section class="comentari">
-    <h2>Secțiune Comentarii</h2>
-
-<!-- Formular pentru adăugarea de comentarii -->
-<form id="commentForm">
-    <textarea id="commentText" placeholder="Introduceți comentariul dvs."></textarea><br><br>
-    <button type="submit">Adăugare Comentariu</button>
-</form>
-
-<hr>
-
-<!-- Container pentru afișarea comentariilor existente -->
-<div id="commentsContainer">
-    <?php
-    // Include fișierul de conexiune la baza de date
-    include 'db.php';
-    $user_id = $_SESSION['id'];
-    $calendarId = $_GET['calendar_id'];
-    $sqll = "Select username from user where id = '$user_id'";
-    $result = mysqli_query($conn, $sqll);
-    $row = mysqli_fetch_assoc($result);
-    $user_name = $row['username'];
-    $userJson=json_encode($user_name);
-    $calendarJson=json_encode($calendarId);
-    
-    $sql = "SELECT * FROM comments WHERE id = $calendarId ORDER BY created_at DESC";
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) > 0) {
-        // Afisează fiecare comentariu
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo '<div class="comment">';
-            echo '<p><strong>Utilizator:</strong> ' . $row['user_id'] . '</p>';
-            echo '<p><strong>Data și ora:</strong> ' . $row['created_at'] . '</p>';
-            echo '<p><strong>Comentariu:</strong><br>' . $row['comment'] . '</p>';
-            echo '</div>';
-        }
-    } else {
-        echo "Nu există comentarii pentru acest eveniment.";
-    }
-
-    // Închide conexiunea la baza de date la finalul scriptului
-    mysqli_close($conn);
-    ?>
-</div>
-</section>
-<!-- Script JavaScript cu jQuery pentru gestionarea adăugării de comentarii -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // Gestionarea trimiterii formularului pentru adăugarea de comentarii
-        $('#commentForm').submit(function(event) {
-            event.preventDefault(); // Previne trimiterea formularului
-
-            var calendarId = <?php echo $calendar_id; ?>;
-            var userName = <?php echo $userJson; ?>;
-            var commentText = $('#commentText').val();
-
-            // Verifică dacă utilizatorul a completat numele și comentariul
-            if (userName.trim() == '' || commentText.trim() == '') {
-                alert('Vă rugăm să completați toate câmpurile.');
-                return;
+        <h2>Comentarii</h2>
+        <div class="com">
+        <iframe src="comments.php?calendar_id=<?php echo $calendar_id; ?>"></iframe>
+        <hr style="height:5px;border-width:0;color:#ffd2c6;background-color:#ffd2c6; opacity:0.5">
+        <form method="post" id="comform">
+            <input type="hidden" name="form_type" value="com_form">
+            <textarea name="comment" id="comment" cols="60" rows="3" placeholder="Text here"></textarea>
+            <input type="submit" value="Submit" id="submit">
+        </form>
+        </div>
+        <?php
+        include 'db.php';
+        if($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_POST['form_type']) && $_POST['form_type'] == 'com_form') {
+            $comment = $_POST['comment'];
+            $created_at = date('Y-m-d H:i:s');
+            $sql = "INSERT INTO comments (calendar_id,user_id, comment,created_at) VALUES ('$calendar_id','$user_id', '$comment','$created_at')";
+            if (mysqli_query($conn, $sql)) {
+                echo "<script>alert('Comentariul a fost adăugat cu succes!');</script>";
+            } else {
+                echo "Eroare: " . $sql . "<br>" . mysqli_error($conn);
             }
+        }
+    }
+    ?>
+    </section>
 
-            // Trimite datele către PHP pentru a adăuga comentariul în baza de date
-            $.ajax({
-                type: 'POST',
-                url: 'adauga_comentariu.php', // Scriptul PHP care va gestiona adăugarea comentariului
-                data: {
-                    calendar_id: calendarId,
-                    user_name: userName,
-                    comment: commentText
-                },
-                success: function(response) {
-                    // Răspunsul de la server după ce s-a adăugat comentariul
-                    console.log(response);
-                    // Reîmprospătează lista de comentarii pentru a afișa noul comentariu
-                    $('#commentsContainer').load(location.href + ' #commentsContainer');
-                },
-                error: function(error) {
-                    // Tratează erorile în cazul în care apelul AJAX a eșuat
-                    console.error('Eroare la adăugarea comentariului:', error);
-                }
-            });
-
-            // Resetează valorile câmpurilor după adăugarea comentariului
-            $('#userName').val('');
-            $('#commentText').val('');
-        });
-    });
-</script>
     <script>
         let eventsphp = <?php echo $eventsJson; ?>;
         let usersphp = <?php echo $usersJson; ?>;
