@@ -111,10 +111,35 @@ if ($calendar_result->num_rows > 0) {
         <button type="submit">Add Calendar</button>
     </form>
 </div>
+<div class="evenimente">
 <?php
-// Închide conexiunea la baza de date
+include 'db.php';
+
+// Obține data curentă și calculează ziua următoare
+$current_date = date('Y-m-d');
+$next_day = date('Y-m-d', strtotime($current_date . ' +1 day'));
+// Interogare SQL pentru a selecta evenimentele care au loc în ziua următoare
+$query = "SELECT e.* FROM event e join userinevent u ON e.id=u.eventId WHERE DATE(e.date) = '$next_day' and userId = '$user_id'";
+$result = mysqli_query($conn, $query);
+
+if (mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<hr style='width:200px; height:2px; color:pink; background-color:pink;'>";
+        echo "<div>";
+        echo "<p>Eveniment: " . htmlspecialchars($row['title']) . "</p>";
+        echo "<p>Data: " . htmlspecialchars($row['date']) . "</p>";
+        echo "<p>Descriere: " . htmlspecialchars($row['description']) . "</p>";
+        echo "</div>";
+        echo "<hr style='width:200px; height:2px; color:pink; background-color:pink;'>";
+    }
+} else {
+    echo "<p>Nu există evenimente pentru ziua următoare.</p>";
+}
+
 mysqli_close($conn);
 ?>
+
+</div>
 <script>
     window.addEventListener('pageshow', function (event) {
         if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
@@ -134,7 +159,17 @@ mysqli_close($conn);
         align-items: center;
         justify-content: center;
     }
+    .evenimente{
+        position: absolute;
+        top: 40vh;
+        right: 3vw;
+        display: grid;
+        width: 25vw;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 
+    }
     #codeFormContainer {
         position: absolute;
         top: 15vh;
