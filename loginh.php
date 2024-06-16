@@ -169,5 +169,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Adaugă JS Bootstrap pentru funcționalități suplimentare (opțional) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-
 </html>

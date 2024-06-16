@@ -10,7 +10,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 // Verifică dacă formularul de login a fost trimis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     include 'db.php'; // Include fișierul de conectare la baza de date
-
+    
     // Escapare și curățare date introduse pentru a preveni SQL injection
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
