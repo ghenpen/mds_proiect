@@ -95,6 +95,13 @@ if (!$common_calendars) {
             margin-top: 20px;
             text-align: center;
         }
+        .list-group a{
+            text-decoration: none;
+            color: black;
+        }
+        .list-group a:hover{
+            color: pink;
+        }
     </style>
 </head>
 

@@ -56,7 +56,7 @@ body {
 #event-section input[type="text"] {
 	margin: 10px 0;
 	padding: 5px;
-	width: 80%;
+	width: 200px;
 }
 
 #event-section button {

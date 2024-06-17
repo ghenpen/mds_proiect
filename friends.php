@@ -111,15 +111,24 @@ if (!$friends) {
 
         .friend-list li {
             margin: 10px 0;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 200px;
+            border-radius: 5px;
+            border: 1px solid pink;
+        }
+        .firend-list li:hover{
+            background-color: pink;
         }
 
         .friend-list a {
             text-decoration: none;
-            color: #007bff;
+            color: #333;
+            
         }
 
         .friend-list a:hover {
             text-decoration: underline;
+            color: pink;
         }
 
         #noFriends {
@@ -137,6 +146,7 @@ if (!$friends) {
 
 <body>
     <?php include 'header.php'; // Include antetul sau bara de navigare ?>
+    <button class="back-button" onclick="window.location.href='homepage.php'" fdprocessedid="mmv3v">Înapoi</button>
 
     <div class="container">
         <h1>Friends</h1>
@@ -144,18 +154,20 @@ if (!$friends) {
         <!-- Buton pentru adăugarea unui prieten -->
         <a href="add_friend.php"><button id="addFriendButton">+</button></a>
         <!-- Buton pentru gestionarea cererilor de prietenie -->
-        <a href="manage_friend_requests.php" ><button id="friendRequestsButton">?</button></a>
+        <a href="manage_friend_requests.php" ><button id="friendRequestsButton"><img src="add-user.png" style="width:80px;height:80px;"></button></a>
 
         <h2>Friends List</h2>
         <?php if ($friends->num_rows > 0): ?>
             <!-- Afiseaza lista de prieteni daca exista cel putin un prieten -->
             <ul class="friend-list">
                 <?php while ($row = $friends->fetch_assoc()): ?>
+                    <a href="view_common.php?friend=<?php echo htmlspecialchars($row['friend_username']); ?>">
                     <li>
-                        <a href="view_common.php?friend=<?php echo htmlspecialchars($row['friend_username']); ?>">
+                        
                             <?php echo htmlspecialchars($row['friend_username']); ?>
-                        </a>
+                        
                     </li>
+                    </a>
                 <?php endwhile; ?>
             </ul>
         <?php else: ?>
