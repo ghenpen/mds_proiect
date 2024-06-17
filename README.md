@@ -1,1 +1,79 @@
-# mds_proiect
+# GroupCalendar - proiect mds
+# User stories 
+US1: Ca un utilizator , doresc sa pot evidentia zilele in care nu sunt disponibil.
+Criteriu de acceptare:
+Utilizatorul selecteaza data in care nu este disponibil , devenind astfel evidentiata si fiind observabila de restul utilizatorilor
+
+US2: Ca un utilizator nou, doresc sa pot crea un cont, pentru a accesa functionalitatile aplicației.
+Criteriu de acceptare:
+Utilizatorul poate introduce un email si o parola pentru a crea un cont.
+Utilizatorul primeste un email de confirmare dupa crearea contului.
+
+US3: Ca un utilizator, doresc sa pot filtra evenimentele din calendar pe baza unor criterii (ex: locatie, tipul evenimentului), pentru a gasi mai usor evenimentele care ma intereseaza.
+Criteriu de acceptare:
+Utilizatorul poate aplica filtre pentru a restrange evenimentele afisate în calendar.
+Filtrarea schimba instantaneu evenimentele afisate fara a reincarca pagina.
+
+US4: Ca un utilizator, doresc sa pot evidentia importanta unor evenimente folosindu-ma de o legenda (de ex. pentru examene am folosi culoarea rosie).
+Criteriu de acceptare:
+In momentul crearii evenimentului, utilizatorul va putea alege nivelul de importanta care va corespunde unei anumite culori.
+
+US5: Ca un utilizator, doresc ca datele mele să fie securizate și confidențialitatea protejată, pentru a mă simți în siguranță utilizând aplicația.
+Criteriu de acceptare:
+Datele sunt criptate atât în repaus cât și în tranzit.
+Utilizatorii pot accesa setări de confidențialitate pentru a controla ce informații sunt vizibile pentru alți utilizatori.
+
+US6: Ca utilizator, doresc sa pot marca evenimentele de care nu sunt sigur si sa fie vizibile pentru ceilalti.
+Criteriu de acceptare:
+Utilizatorul poate edita in orice moment daca un eveniment este incert sau nu folosindu-se de un caracter specific (de ex. “?”).
+
+US7: Ca utilizator , doresc sa impartasesc cu restul utilizatorilor anumite informatii depre anumite evenimente, de asemenea poze, videoclipuri si multe altele.
+Criteriu de acceptare:
+Langa calendarul propriu zis, cand se selecteaza o data , va exista o sectiune “de comentarii” in care utilizaorii pot scrie, adauga poze, videoclipuri, etc.
+
+US8: Ca utilizator , doresc sa am dreptul de a alege la ce evenimente particip adaugate de alti prieteni
+Criteriu de acceptare:
+Printr-un buton se poate efectua participarea la eveniment.
+
+ 
+
+US9:Ca utilizator, vreau să pot trimite și primi cereri de prietenie, pentru a-mi extinde rețeaua și a colabora mai ușor la planificarea evenimentelor.
+Criteriu de Acceptare:
+Pot căuta și trimite cereri de prietenie utilizând nume sau email.
+Sunt notificat când primesc cereri de prietenie și pot alege să accept sau să refuz.
+După acceptare, noi și prietenii mei suntem notificați și putem vedea reciproc evenimentele.
+Pot invita prieteni acceptați la evenimentele mele.
+
+US10: Ca utilizator, doresc sa fiu notificat in legatura cu evenimentele care se aproprie.
+Criteriu de acceptare:
+Cu 24 de ore inainte fiecare utilizator care participa la eveniment va fi notificat in homepage cu evenimentul care urmeaza.
+# Demo
+https://youtu.be/6NPbLT9qySw
+
+# AI Tools
+
+![image](https://github.com/ghenpen/mds_proiect/assets/119069416/b8230d5d-4eaa-45d4-b22d-092abefd69c8)
+
+Datorita faptului ca in acest moment phpul este un limbaj de programare considerat demodat, nu exista atat de multa documentatie actuala pe internet, astfel am decurs la ajutorul 
+chatgpt-ului pentru a ne informa, spre exemplu, modul in care se fac testele automate cu phpUnit
+
+![image](https://github.com/ghenpen/mds_proiect/assets/119069416/8bf8304f-cb4f-4245-bbd5-be4ccfac758f)
+
+Datorita faptului ca uneori erorile sunt formulate intr-o maniera grea de inteles, am apelat la ajutorul chatgpt-ului pentru a intelege si repara erorile.
+# Diagrams
+ER diagram
+![ER](https://github.com/ghenpen/mds_proiect/assets/74860368/bae951f5-12b6-420b-986f-88bbf966d83f)
+UML diagram
+![UML](https://github.com/ghenpen/mds_proiect/assets/74860368/9365db00-6ad5-41f5-b0a7-7f79678aa25f)
+Workflow diagram
+![workflow](https://github.com/ghenpen/mds_proiect/assets/74860368/3ac11540-a59d-4958-9b50-193ad93676ba)
+Code workflow diagram
+![workflow2](https://github.com/ghenpen/mds_proiect/assets/74860368/9de5e60f-9320-43c1-8b3e-e021ad544494)
+
+
+
+
+
+
+
+
