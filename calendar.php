@@ -288,7 +288,7 @@
                 echo "<script>alert('Evenimentul nu poate fi adăugat. Alegeți o altă culoare.');</script>";
             } else {
                 $stmt = $conn->prepare("INSERT INTO event (calendarId, date, time, location, title, description, type) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("isssss", $calendar_id, $eventDate, $eventTime, $eventLocation, $eventTitle, $eventDescription, $eventColor);
+                $stmt->bind_param("issssss", $calendar_id, $eventDate, $eventTime, $eventLocation, $eventTitle, $eventDescription, $eventColor);
 
                 if ($stmt->execute()) {
                     echo "<script>alert('Eveniment adăugat cu succes!');</script>";
