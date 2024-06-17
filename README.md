@@ -46,7 +46,7 @@ Pot invita prieteni acceptați la evenimentele mele.
 
 US10: Ca utilizator, doresc sa fiu notificat in legatura cu evenimentele care se aproprie.
 Criteriu de acceptare:
-Cu 24 de ore inainte fiecare utilizator care participa la eveniment va primi un email cu detaliile evenimentului care se aproprie.
+Cu 24 de ore inainte fiecare utilizator care participa la eveniment va fi notificat in homepage cu evenimentul care urmeaza.
 # Demo
 https://youtu.be/6NPbLT9qySw
 
