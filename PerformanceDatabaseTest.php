@@ -1,4 +1,5 @@
 <?php
+//design pattern: sigleton pattern
 use PHPUnit\Framework\TestCase;
 
 class PerformanceDatabaseTest extends TestCase
