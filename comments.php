@@ -1,4 +1,5 @@
 <?php
+            #rezolvare pt comentarii
             include 'db.php';
             $calendar_id = $_GET['calendar_id'];
             $query = "SELECT c.*, u.username FROM comments c join user u ON c.user_id=u.id WHERE calendar_id = '$calendar_id'";
