@@ -50,4 +50,16 @@ Cu 24 de ore inainte fiecare utilizator care participa la eveniment va primi un 
 # Demo
 https://youtu.be/6NPbLT9qySw
 
+#AI Tools
+
+![image](https://github.com/ghenpen/mds_proiect/assets/119069416/b8230d5d-4eaa-45d4-b22d-092abefd69c8)
+
+Datorita faptului ca in acest moment phpul este un limbaj de programare considerat demodat, nu exista atat de multa documentatie actuala pe internet, astfel am decurs la ajutorul 
+chatgpt-ului pentru a ne informa, spre exemplu, modul in care se fac testele automate cu phpUnit
+
+![image](https://github.com/ghenpen/mds_proiect/assets/119069416/8bf8304f-cb4f-4245-bbd5-be4ccfac758f)
+
+Datorita faptului ca uneori erorile sunt formulate intr-o maniera grea de inteles, am apelat la ajutorul chatgpt-ului pentru a intelege si repara erorile.
+
+
 
