@@ -50,7 +50,7 @@ Cu 24 de ore inainte fiecare utilizator care participa la eveniment va primi un 
 # Demo
 https://youtu.be/6NPbLT9qySw
 
-#AI Tools
+# AI Tools
 
 ![image](https://github.com/ghenpen/mds_proiect/assets/119069416/b8230d5d-4eaa-45d4-b22d-092abefd69c8)
 
