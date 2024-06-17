@@ -1,14 +1,15 @@
 <?php
-//design pattern: sigleton pattern
+// Design pattern: Singleton pattern
 use PHPUnit\Framework\TestCase;
 
 class PerformanceDatabaseTest extends TestCase
 {
     private $conn;
+    private static $instance = null;
 
-    protected function setUp(): void
+    // Private constructor to prevent direct instantiation
+    private function __construct()
     {
-        // Conectare la baza de date
         $this->conn = new mysqli("localhost", "root", "", "proiect_mds");
 
         if ($this->conn->connect_error) {
@@ -16,30 +17,53 @@ class PerformanceDatabaseTest extends TestCase
         }
     }
 
+    // Singleton method to get the instance
+    public static function getInstance(): PerformanceDatabaseTest
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    protected function setUp(): void
+    {
+        // Ensure connection is available for tests
+        if (!$this->conn) {
+            $this->conn = new mysqli("localhost", "root", "", "proiect_mds");
+
+            if ($this->conn->connect_error) {
+                die("Eroare la conectare: " . $this->conn->connect_error);
+            }
+        }
+    }
+
     protected function tearDown(): void
     {
-        // Închidere conexiune la baza de date
+        // Close the database connection
         if ($this->conn) {
             $this->conn->close();
+            $this->conn = null;
         }
     }
 
     public function testDatabasePerformance()
     {
-        // Măsurarea timpului pentru o interogare simplă
+        // Measure the time for a simple query
         $startTime = microtime(true);
         $sql = "SELECT * FROM user";
         $result = $this->conn->query($sql);
         $endTime = microtime(true);
         $queryTime = $endTime - $startTime;
 
-        // Assert pentru timpul de execuție
-        $this->assertLessThan(0.1, $queryTime); // Timpul ar trebui să fie mai mic de 0.1 secunde
+        // Assert for execution time
+        $this->assertLessThan(0.1, $queryTime); // Time should be less than 0.1 seconds
 
-        // Assert pentru rezultatele interogării
-        $this->assertTrue($result->num_rows > 0); // Verificăm că avem cel puțin un rând în rezultate
+        // Assert for query results
+        $this->assertTrue($result->num_rows > 0); // Ensure we have at least one row in the results
 
-        // În funcție de specificul aplicației tale, poți adăuga și alte aserțiuni relevante
+        // Depending on your application specifics, you can add more relevant assertions
     }
 }
+
 ?>
