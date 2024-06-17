@@ -61,9 +61,13 @@ chatgpt-ului pentru a ne informa, spre exemplu, modul in care se fac testele aut
 
 Datorita faptului ca uneori erorile sunt formulate intr-o maniera grea de inteles, am apelat la ajutorul chatgpt-ului pentru a intelege si repara erorile.
 # Diagrams
+ER diagram
 ![ER](https://github.com/ghenpen/mds_proiect/assets/74860368/bae951f5-12b6-420b-986f-88bbf966d83f)
+UML diagram
 ![UML](https://github.com/ghenpen/mds_proiect/assets/74860368/9365db00-6ad5-41f5-b0a7-7f79678aa25f)
+Workflow diagram
 ![workflow](https://github.com/ghenpen/mds_proiect/assets/74860368/3ac11540-a59d-4958-9b50-193ad93676ba)
+Code workflow diagram
 ![workflow2](https://github.com/ghenpen/mds_proiect/assets/74860368/9de5e60f-9320-43c1-8b3e-e021ad544494)
 
 
